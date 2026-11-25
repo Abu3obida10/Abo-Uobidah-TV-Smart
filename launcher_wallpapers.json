@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "last_updated": "2026-11-25",
+  "categories": [
+    {
+      "id": "islamic",
+      "title": "خلفيات إسلامية",
+      "api_source": "https://wallhaven.cc/api/v1/search?q=mosque+OR+islamic+OR+kaaba&ratios=16x9&purity=100&sorting=random",
+      "fallback_wallpapers": [
+        "https://w.wallhaven.cc/full/x8/wallhaven-x8116o.jpg",
+        "https://w.wallhaven.cc/full/72/wallhaven-725219.jpg",
+        "https://w.wallhaven.cc/full/49/wallhaven-497888.jpg"
+      ]
+    },
+    {
+      "id": "nature",
+      "title": "خلفيات طبيعة",
+      "api_source": "https://wallhaven.cc/api/v1/search?q=nature+landscape&ratios=16x9&purity=100&sorting=random",
+      "fallback_wallpapers": [
+        "https://w.wallhaven.cc/full/zy/wallhaven-zyxvqy.jpg",
+        "https://w.wallhaven.cc/full/p9/wallhaven-p9o52e.jpg",
+        "https://w.wallhaven.cc/full/we/wallhaven-we622r.jpg"
+      ]
+    },
+    {
+      "id": "al_ahly",
+      "title": "النادي الأهلي المصري",
+      "logo_url": "https://raw.githubusercontent.com/Leo4815162342/football-logos/main/logos/Egypt/Al%20Ahly%20SC.png",
+      "api_source": "https://wallhaven.cc/api/v1/search?q=Al+Ahly&ratios=16x9&purity=100&sorting=random",
+      "fallback_wallpapers": [
+        "https://your-github-or-r2-link.com/wallpapers/alahly_1.jpg",
+        "https://your-github-or-r2-link.com/wallpapers/alahly_2.jpg"
+      ]
+    },
+    {
+      "id": "real_madrid",
+      "title": "ريال مدريد",
+      "logo_url": "https://raw.githubusercontent.com/Leo4815162342/football-logos/main/logos/Spain/Real%20Madrid%20CF.png",
+      "api_source": "https://wallhaven.cc/api/v1/search?q=Real+Madrid&ratios=16x9&purity=100&sorting=random",
+      "fallback_wallpapers": [
+        "https://w.wallhaven.cc/full/43/wallhaven-438289.jpg",
+        "https://w.wallhaven.cc/full/4d/wallhaven-4d3830.jpg"
+      ]
+    },
+    {
+      "id": "man_united",
+      "title": "مانشستر يونايتد",
+      "logo_url": "https://raw.githubusercontent.com/Leo4815162342/football-logos/main/logos/England/Manchester%20United%20FC.png",
+      "api_source": "https://wallhaven.cc/api/v1/search?q=Manchester+United&ratios=16x9&purity=100&sorting=random",
+      "fallback_wallpapers": [
+        "https://w.wallhaven.cc/full/45/wallhaven-457275.jpg",
+        "https://w.wallhaven.cc/full/0p/wallhaven-0p386m.jpg"
+      ]
+    }
+  ]
+}

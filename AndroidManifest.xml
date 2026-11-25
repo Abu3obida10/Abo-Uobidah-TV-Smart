@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- يُمنح عبر ADB فقط؛ يسمح للانشر بتفعيل خدمة Home تلقائيًا ولا يؤثر بدونه. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher"
+        android:banner="@drawable/banner"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:theme="@style/Theme.AboUobidahTV">
+
+        <activity
+            android:name=".MainLauncherActivity"
+            android:exported="true"
+            android:banner="@drawable/banner"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:clearTaskOnLaunch="true"
+            android:resumeWhilePausing="true"
+            android:stateNotNeeded="true"
+            android:excludeFromRecents="false"
+            android:screenOrientation="landscape">
+            <!-- Android's default HOME resolver. Keep this filter separate from app-drawer discovery. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Android TV launcher/app-drawer entry. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <!-- Compatibility with phone/tablet launcher discovery tools. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".HomeControlActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".PerformanceSettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".SetupActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".AppsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".MatchesActivity" android:exported="false" android:screenOrientation="unspecified" />
+        <activity android:name=".YallaScoresActivity" android:exported="false" android:screenOrientation="unspecified" />
+        <activity android:name=".RadioActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".IptvProActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".TvInputsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".TvPassthroughActivity" android:exported="false" android:screenOrientation="landscape" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity android:name=".WallpaperActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".SettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".HomeCustomizationActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".LayoutPickerActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".ThemePickerActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".ClubThemesActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".FavoriteAppsSettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".MatchPreferencesActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".AlertSoundSettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".AppsNotificationSettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".IslandSettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".PrayerSettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".NotesActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".MatchDetailActivity" android:exported="false" android:screenOrientation="unspecified" />
+        <activity android:name=".NotificationCenterActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".BackupActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".AdhkarActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".QuranActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".RecitersActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".PlaylistsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".ReciterDetailActivity" android:exported="false" android:screenOrientation="landscape" />
+        <activity android:name=".UpdateActivity" android:exported="false" android:screenOrientation="landscape" />
+
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".PrayerWakeReceiver" android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/update_file_paths" />
+        </provider>
+
+        <service
+            android:name=".DynamicIslandOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".QuranAudioService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".RadioService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".HomeKeyOverrideService"
+            android:exported="true"
+            android:label="@string/home_accessibility_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/uobidah_home_accessibility" />
+        </service>
+
+        <service
+            android:name=".IslandNotificationListener"
+            android:exported="true"
+            android:label="@string/listener_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+    </application>
+</manifest>

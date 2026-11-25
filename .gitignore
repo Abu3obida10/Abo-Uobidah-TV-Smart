@@ -1,0 +1,26 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+/build
+/app/build
+.DS_Store
+
+# Generated packages, local signing files, and build/test logs
+*.apk
+*.aab
+*.ap_
+*.jks
+*.keystore
+AUTO_BUILD_LOG.txt
+TEST_RESULTS_LATEST.txt
+
+# Owner-local persistent release signing configuration
+.abo-uobidah/
+
+# Python audit/runtime outputs and local signing material
+/.kotlin/
+__pycache__/
+*.py[cod]
+signing.properties
+*.p12

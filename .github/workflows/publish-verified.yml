@@ -1,0 +1,64 @@
+name: publish-verified-artifact
+# Publishes the already built and signed APK from an earlier successful run of release.yml.
+# It re-runs the same signer/version/hash/manifest verification before creating the release.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run id of a successful release.yml run on this commit lineage"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: android-actions/setup-android@v3
+        with: { packages: "" }
+      - name: Install build-tools
+        run: sdkmanager "build-tools;35.0.0"
+      - name: Source run must be a successful release.yml run with passing test and build jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID" --jq '[.path,.status,.conclusion,.head_sha]' | tee /tmp/run.json
+          python3 - <<'PY'
+          import json
+          p, s, c, sha = json.load(open("/tmp/run.json"))
+          assert p.endswith("release.yml") and s == "completed" and c == "success", (p, s, c)
+          print("source run ok, commit", sha)
+          PY
+          gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs" --jq '.jobs[] | [.name,.conclusion] | @tsv'
+          test "$(gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs" --jq '[.jobs[] | select((.name=="test" or .name=="build") and .conclusion=="success")] | length')" = "2"
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-apk
+          path: out
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Verify signer, version, hash, not-debuggable
+        run: |
+          export PATH="$ANDROID_HOME/build-tools/35.0.0:$PATH"
+          ls -l out
+          APK=$(ls out/Abo-Uobidah-TV-*.apk)
+          python3 tools/field_tests/release_check.py "$APK" out/update.json --repo "${{ github.repository }}"
+      - name: Publish full latest release (never overwrites an existing release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=v$(grep ^appVersionName gradle.properties | cut -d= -f2)
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::release $TAG already exists; refusing to overwrite"; exit 1
+          fi
+          NOTES="CI-built and signed with the pinned owner certificate. CI checked signer, version, package, SHA-256 and not-debuggable. Not tested on a real TV or device yet. One focus-walk unit test failed once on CI and passed on reruns; the cause is not explained. Installing an update still needs your confirmation in the Android installer (no silent install)."
+          gh release create "$TAG" out/* --latest --target "$GITHUB_SHA" --title "$TAG" --notes "$NOTES"

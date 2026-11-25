@@ -123,7 +123,17 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: bash ./gradlew --no-daemon assembleRelease
+        run: |
+          # Retry only when Maven Central throttles the runner (HTTP 429). Any other failure fails at once.
+          for i in 1 2 3 4; do
+            bash ./gradlew --no-daemon assembleRelease 2>&1 | tee /tmp/build.log
+            rc=${PIPESTATUS[0]}
+            if [ "$rc" -eq 0 ]; then exit 0; fi
+            if ! grep -q -E "status code 429|response code: 429" /tmp/build.log; then exit "$rc"; fi
+            echo "Maven Central throttled this build (429); retry $i after a pause"
+            sleep $((90 * i))
+          done
+          exit 1
       - name: Stage APK and update.json
         run: |
           NAME=$(grep ^appVersionName gradle.properties | cut -d= -f2)

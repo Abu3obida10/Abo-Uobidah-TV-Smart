@@ -1,0 +1,137 @@
+name: release-build
+
+# اختبار → بناء موقّع وفحص → نشر؛ ثلاث وظائف منفصلة بصلاحيات مختلفة.
+#  - test: بلا أسرار وبصلاحية قراءة فقط، يعمل على أي فرع.
+#  - build: يوقّع ويفحص، لا ينشر. يعمل فقط من وسم v* أو من الفرع الرئيسي عبر التشغيل اليدوي.
+#  - publish: الوحيد الذي يملك contents: write. لا يعمل إلا لوسم v* مطابق لإصدار gradle.properties،
+#    أو لتشغيل يدوي من الفرع الرئيسي مع publish=true. ولا يستبدل إصدارًا منشورًا.
+# لا يولّد مفتاحًا ولا يستبدله: أي سر ناقص أو بصمة لا تطابق release/EXPECTED_SIGNER_SHA256.txt يفشل البناء.
+# الأسرار المطلوبة: ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+# حفظ الأسرار وحده ليس دليلًا على نجاح التوقيع: لا يُعتبر الإصدار سليمًا قبل نجاح خطوة release_check.
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "انشر GitHub Release بعد نجاح كل الفحوص (true/false) — يعمل فقط من الفرع الرئيسي"
+        type: boolean
+        default: false
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: android-actions/setup-android@v3
+      - name: Install build-tools and platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Source audits
+        run: |
+          python3 run_project_audit.py
+          python3 run_ui_audit.py
+          python3 tools/gen_brand_palettes.py --check app/src/test/resources/brand_palettes_minimal_tv_icons.csv
+      - name: Unit tests
+        run: ./gradlew --no-daemon testDebugUnitTest
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: test-reports, path: app/build/reports/tests/testDebugUnitTest, if-no-files-found: ignore }
+
+  build:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: android-actions/setup-android@v3
+      - name: Install build-tools and platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Tag must match gradle.properties version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          NAME=$(grep ^appVersionName gradle.properties | cut -d= -f2)
+          if [ "$GITHUB_REF_NAME" != "v$NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match appVersionName v$NAME"; exit 1
+          fi
+      - name: Check signing secrets exist (names only, values never printed)
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KP: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KA: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KK: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          for v in KS KP KA KK; do
+            if [ -z "${!v}" ]; then echo "::error::missing secret for $v"; exit 1; fi
+          done
+      - name: Decode keystore (runner temp only)
+        env: { KS: "${{ secrets.ANDROID_KEYSTORE_B64 }}" }
+        run: |
+          umask 077
+          printf '%s' "$KS" | base64 -d > "$RUNNER_TEMP/owner-release.jks"
+      - name: Build release APK
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/owner-release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew --no-daemon assembleRelease
+      - name: Stage APK and update.json
+        run: |
+          NAME=$(grep ^appVersionName gradle.properties | cut -d= -f2)
+          CODE=$(grep ^appVersionCode gradle.properties | cut -d= -f2)
+          APK=Abo-Uobidah-TV-$CODE.apk
+          mkdir -p out
+          cp app/build/outputs/apk/release/*.apk "out/$APK"
+          SHA=$(sha256sum "out/$APK" | cut -d' ' -f1)
+          cat > out/update.json <<JSON
+          {"packageName":"com.uobidah.launcher","versionName":"$NAME","versionCode":$CODE,"tag":"v$NAME","apkUrl":"https://github.com/${{ github.repository }}/releases/download/v$NAME/$APK","sha256":"$SHA","releaseNotes":"إصلاحات وتحسينات لتطبيق Abo Uobidah TV."}
+          JSON
+          sed -i 's/^          //' out/update.json
+          echo "APK=out/$APK" >> "$GITHUB_ENV"
+      - name: Verify signer, version, hash, not-debuggable
+        run: |
+          export PATH="$ANDROID_HOME/build-tools/35.0.0:$PATH"
+          python3 tools/field_tests/release_check.py "$APK" out/update.json --repo "${{ github.repository }}"
+      - uses: actions/upload-artifact@v4
+        with: { name: release-apk, path: out/*, if-no-files-found: error }
+      - name: Remove keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/owner-release.jks"
+
+  publish:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish == true)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: release-apk, path: out }
+      - name: Publish release (never overwrites an existing release)
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          TAG=v$(grep ^appVersionName gradle.properties | cut -d= -f2)
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "$GITHUB_REF_NAME" != "$TAG" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match $TAG"; exit 1
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::release $TAG already exists; refusing to overwrite published assets"; exit 1
+          fi
+          gh release create "$TAG" out/* --target "$GITHUB_SHA" --title "$TAG" --notes "release $TAG"

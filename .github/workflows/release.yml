@@ -44,6 +44,26 @@ jobs:
           python3 tools/gen_brand_palettes.py --check app/src/test/resources/brand_palettes_minimal_tv_icons.csv
       - name: Unit tests
         run: bash ./gradlew --no-daemon testDebugUnitTest
+      - name: Report test totals and failures (diagnostic only)
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob
+          import xml.etree.ElementTree as ET
+          t = f = s = 0
+          for p in glob.glob("app/build/test-results/testDebugUnitTest/*.xml"):
+              for c in ET.parse(p).getroot().iter("testcase"):
+                  t += 1
+                  bad = c.find("failure")
+                  if bad is None:
+                      bad = c.find("error")
+                  if c.find("skipped") is not None:
+                      s += 1
+                  elif bad is not None:
+                      f += 1
+                      print("FAILED:", c.get("classname"), c.get("name"), (bad.get("message") or "")[:400].replace("\n", " "))
+          print("XML totals: tests", t, "failed", f, "skipped", s, "passed", t - f - s)
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: test-reports, path: app/build/reports/tests/testDebugUnitTest, if-no-files-found: ignore }

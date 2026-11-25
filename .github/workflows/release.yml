@@ -43,7 +43,17 @@ jobs:
           python3 run_ui_audit.py
           python3 tools/gen_brand_palettes.py --check app/src/test/resources/brand_palettes_minimal_tv_icons.csv
       - name: Unit tests
-        run: bash ./gradlew --no-daemon testDebugUnitTest
+        run: |
+          # Retry only when Maven Central throttles the runner (HTTP 429). Any other failure fails at once.
+          for i in 1 2 3 4; do
+            bash ./gradlew --no-daemon testDebugUnitTest 2>&1 | tee /tmp/unit-tests.log
+            rc=${PIPESTATUS[0]}
+            if [ "$rc" -eq 0 ]; then exit 0; fi
+            if ! grep -q -E "status code 429|response code: 429" /tmp/unit-tests.log; then exit "$rc"; fi
+            echo "Maven Central throttled this run (429); retry $i after a pause"
+            sleep $((90 * i))
+          done
+          exit 1
       - name: Report test totals and failures (diagnostic only)
         if: always()
         run: |

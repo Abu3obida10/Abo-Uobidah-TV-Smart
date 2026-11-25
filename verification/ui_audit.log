@@ -1,0 +1,100 @@
+PASS Launcher display name is Abo Uobidah TV
+PASS Existing applicationId is preserved for in-place upgrades
+PASS Project build name is AboUobidahTV
+PASS Old visible product title is removed from active Android source
+PASS Android manifest uses Gradle namespace instead of legacy package attribute
+PASS Professional settings hub has 9 navigable categories
+PASS Settings hub includes a right-side fixed category navigation rail
+PASS Settings hub provides home, appearance, prayer, matches, alerts, apps, system and about groups
+PASS All routed settings activities are declared in the Android manifest
+PASS SettingsBase groups controls in reusable section cards
+PASS Settings action rows are focusable/clickable for TV remote
+PASS Back uses the Android Activity stack rather than always navigating home
+PASS Settings category selection preserves its own content scroll position
+PASS Settings category back returns through the prior category history before leaving the activity
+PASS Settings category accordion state persists across activity recreation
+PASS Settings menu position is persisted
+PASS Settings controls use contrast-adjusted foreground colors
+PASS Layout picker returns to the invoking settings page after apply or revert
+PASS Reciter API parser only accepts HTTPS media and merges duplicate reciter entries
+PASS Reciter list reports live API totals rather than fabricating a fixed 244 entries
+PASS Settings toggles display state and update stored preferences
+PASS Shared button focus and card surfaces use a visible focused state
+PASS Application release identity is centralized at 1.0.48 / versionCode 69
+PASS Standings page opens directly from home and remembers the selected league
+PASS Egyptian standings coverage is explicitly marked unverified
+PASS Wallpaper search rejects arbitrary image hosts from Commons API
+PASS Theme background exposes raster build and reuse timing counters
+PASS Theme raster cache does not mutate drawable bounds while drawing
+PASS Island render regression checks both vertical shapes and visible NOW text
+PASS Narrow island preview regression asserts the NOW chip stays inside its parent
+PASS App tile labels use two lines and automatic font fitting on narrow screens
+PASS Settings preview passes its actual content width to Dynamic Island measurement
+PASS Android screen render tests propagate UI exceptions instead of silently writing error sidecars
+PASS Android screen render tests verify IPTV chooser fullscreen and visible playlist entries
+PASS Sidebar IPTV item opens the existing IPTV activity without changing its internal workflow
+PASS Match detail opens IPTV with the fixture context and live-channel filter
+PASS IPTV retains its established saved-playlist workflow
+PASS IPTV source workflow remains separate from home navigation
+PASS IPTV list parsing and playback remain available
+PASS IPTV content classifier remains available
+PASS IPTV retains the existing channel list adapter
+PASS IPTV retains its player and list layout
+PASS IPTV default playlist selection remains supported
+PASS Screen render suite retains IPTV screen coverage
+PASS IPTV content classifier tests remain registered
+PASS Android screen render tests verify top bar stays outside body ScrollView in every selectable layout
+PASS Weather card text is stacked and can wrap across the full card width
+PASS Prayer guidance is stacked above a true two-column prayer-card grid
+PASS Prayer cards reserve sufficient height to prevent text clipping
+PASS Vertical information split layouts reserve scroll height for both full-size cards
+PASS Main screen uses the new Android TV reference composition
+PASS Twenty-one selectable home layouts use twenty-one different real templates
+PASS All 26 home templates have a dedicated live renderer branch and a matching preview branch
+PASS Home layouts include real split-column and unequal weather/prayer spotlight structures
+PASS Layout previews distinguish channel rails, match boards, and weather/prayer split panels
+PASS Fifteen coordinated color palettes are exposed visibly
+PASS New home cards derive their surfaces from the chosen theme and show focus outlines
+PASS Legacy card styles also use opaque solid surfaces rather than glass/transparent fills
+PASS App tiles use installed app banners or real launcher icons
+PASS Every selectable home layout keeps the top bar fixed outside the scrolling content
+PASS All layouts use only the side rail and no layout definition contains a bottom dock
+PASS Side rail exposes seven clear Android TV destinations without duplicate IPTV entries
+PASS Kids and games are removed from all home navigation lists and customization controls
+PASS No bottom-dock visibility or destination controls remain in home customization
+PASS Main settings no longer expose bottom-dock visibility or styling
+PASS Legacy dock preferences are disabled in new UI defaults and preserved only for compatibility
+PASS Home match panel opens the standings view directly
+PASS Home favourite IPTV channels are not capped at twelve
+PASS Home favourite-channel strip keeps horizontal scroll access for every channel
+PASS IPTV keeps its existing in-activity playlist selection stage
+PASS IPTV restores its player content after selection
+PASS IPTV Back handling remains present
+PASS IPTV supports persisted playlist selection
+PASS IPTV supports channel filtering
+PASS IPTV favorites are persisted
+PASS Build script saves Gradle test and build output separately
+PASS Build script extracts root cause messages when Gradle fails
+PASS Gradle worker count is capped for build stability
+PASS Kotlin compiler uses in-process mode to reduce worker-daemon failures
+PASS Settings has a dedicated Home-control screen
+PASS Home-control screen checks default HOME and accessibility service state
+PASS Home-control screen includes explicit warning about CVTE firmware interception
+PASS Home key accessibility service only handles KEYCODE_HOME and passes other keys through
+PASS Home accessibility service is declared with key-filter capability
+PASS Default launcher setup includes optional accessibility Home helper
+PASS Dynamic Island uses TYPE_APPLICATION_OVERLAY for its designed surface
+PASS Missing overlay permission is diagnosed instead of masquerading as the Dynamic Island
+PASS Overlay is measured to display bounds and placed at explicit top-left coordinates
+PASS Dynamic Island custom offsets are converted from dp to px
+PASS Island placement anchors support top, corners, bottom and centre with screen clamping
+PASS Island settings expose overlay-permission status and launch the correct settings page
+PASS Island settings provide a one-step reset to top-centre and persisted directional movement
+PASS GitHub automatic update screen is registered and reachable
+PASS Automatic updates use WorkManager on a 6-hour network schedule
+PASS App launch rechecks updates after the six-hour freshness window
+PASS Updater verifies cached APK hash again before installation
+PASS Updater verifies the APK hash and signing certificate
+PASS Update downloads are restricted to matching GitHub release assets
+
+UI source audit: 111 passed, 0 failed

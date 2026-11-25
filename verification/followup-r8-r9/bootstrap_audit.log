@@ -1,0 +1,20 @@
+PASS installed SDK is checked before sdkmanager is invoked
+PASS offline path skips repository metadata refresh
+PASS required compile SDK platform is checked
+PASS required build-tools binaries are checked
+PASS sdkmanager output is captured separately
+PASS SDK platform-tools is optional for compiling
+PASS launcher version and code are defined centrally and consumed by Gradle
+PASS installer explains offline SDK reuse
+PASS sdkmanager is not downloaded when the SDK is complete
+PASS safe installer is called after APK build
+PASS APK build succeeds without a connected device
+PASS SDK discovery checks the common Android Studio SDK location
+PASS Gradle batch is launched through cmd.exe without PowerShell stderr conversion
+PASS Gradle wrapper exit code is read from the operating-system process
+PASS Gradle batch forwards the exact ERRORLEVEL
+PASS a failed test task stops before assembleDebug
+PASS TLS 1.2 fallback and explicit TLS diagnosis are configured
+PASS APK build task runs after unit tests and is separately logged
+
+Audit tests: 18/18 passed

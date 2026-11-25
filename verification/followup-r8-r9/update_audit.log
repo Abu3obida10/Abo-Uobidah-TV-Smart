@@ -1,0 +1,24 @@
+PASS periodic checks run every 6 hours
+PASS default GitHub repository is preconfigured
+PASS app launch triggers a throttled update check
+PASS last-check timestamp is only recorded after a successful manifest/result
+PASS checks require network connectivity
+PASS GitHub latest release API is used
+PASS only release-specific GitHub APK assets are accepted
+PASS APK SHA-256 is checked
+PASS cached APK SHA-256 is rechecked before install
+PASS redirects use exact GitHub host allowlist
+PASS nonstandard HTTPS ports are rejected
+PASS GitHub .git repository URLs are normalized
+PASS APK package and version are checked
+PASS installed signing certificate is compared
+PASS installer uses FileProvider
+PASS settings screen is registered
+PASS FileProvider is registered
+PASS install permission is declared
+PASS WorkManager dependency is included
+PASS release publisher uploads only the named APK and manifest
+PASS update screen reachable from About settings
+PASS startup calls the automatic update scheduler
+
+Audit tests: 22/22 passed

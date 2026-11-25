@@ -1,0 +1,16 @@
+PASS global fixtures cover yesterday, today and tomorrow
+PASS Yalla team page failure falls back to SofaScore
+PASS last cached club matches remain visible on failure
+PASS global feed has a short cache and parses real events
+PASS match cards no longer expose a glass transparent style
+PASS ESPN timeline uses summary and core plays endpoints with bounded requests
+PASS ESPN CDN game package is the last timeline fallback
+PASS ESPN timeline responses are cached and deduplicated per event
+PASS match detail refreshes the selected provider event id without cross-provider id mixing
+PASS Arabic finished and canceled states use the centralized strict normalizer
+PASS Standings use the ESPN Core API path
+PASS Egyptian ESPN coverage is explicitly described as uncertain
+PASS previous results require an explicit finished status
+PASS elapsed time and score are not a finished-state fallback
+PASS date-only fixtures do not receive a fake midnight kickoff
+PASS cross-source status changes merge even when the score is unchanged

@@ -1,0 +1,10 @@
+PASS current home score read into nullable local
+PASS current away score read into nullable local
+PASS both current scores checked before use
+PASS previous home score parsed into nullable local
+PASS previous away score parsed into nullable local
+PASS both previous scores checked before comparison
+PASS final home score read into nullable local
+PASS final away score read into nullable local
+PASS final score pair checked before outcome comparison
+Nullable score source guard: 9/9 passed

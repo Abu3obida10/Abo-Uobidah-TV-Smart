@@ -1,0 +1,10 @@
+PASS: RobolectricTestRunner imported explicitly
+PASS: test runner annotation resolves imported class
+PASS: prayer time is safely cast to TextView
+PASS: typed prayer time reads TextView.text only after null check
+PASS: HDMI activity uses the standalone routing policy
+PASS: saved TV app route handled before HDMI fallback
+PASS: disconnected HDMI never enters direct fallback
+PASS: route tests cover disconnected HDMI
+PASS: route tests cover saved TV app priority
+RESULT: 9/9

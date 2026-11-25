@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        google()
+        // Official Maven Central alternate hostname; useful on networks that reset
+        // TLS sessions to repo.maven.apache.org. HTTPS certificate checks stay enabled.
+        maven { url 'https://repo1.maven.org/maven2/' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        // Official Maven Central alternate hostname; checksums and TLS remain enforced.
+        maven { url 'https://repo1.maven.org/maven2/' }
+        mavenCentral()
+    }
+}
+rootProject.name = "AboUobidahTV"
+include ':app'

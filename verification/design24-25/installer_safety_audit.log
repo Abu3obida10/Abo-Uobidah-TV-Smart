@@ -1,0 +1,25 @@
+PASS release version is defined centrally and Gradle consumes it
+PASS standalone installer reads the same central release identity
+PASS installer validates application ID
+PASS installer validates APK package and version
+PASS installer verifies APK signing certificate
+PASS installer compares old and new signing certificates
+PASS signature conflict never triggers auto uninstall
+PASS installer blocks version downgrades
+PASS installer handles insufficient storage
+PASS installer handles user-restricted installs
+PASS installer diagnoses ABI and older Android conflicts
+PASS installer accepts custom Android SDK roots
+PASS installer requires explicit target when multiple devices are connected
+PASS installer checks Android API minSdk
+PASS installer verifies package after installation
+PASS installer makes HOME setup optional
+PASS installer confirms app package after installing
+PASS build reuses a complete SDK without requiring sdkmanager
+PASS sdkmanager download only happens after required SDK files are missing
+PASS build delegates to safe installer
+PASS standalone installer entry point exists
+PASS installer captures native stderr safely in Windows PowerShell 5.1
+PASS HOME setup captures native ADB stderr safely
+
+Audit tests: 23/23 passed

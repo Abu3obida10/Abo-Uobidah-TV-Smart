@@ -1,0 +1,86 @@
+PASS Manifest components resolve to source classes — []
+PASS Explicit in-app activity intents are declared in the manifest — []
+PASS Manifest resource references exist — []
+PASS Main activity has HOME intent filter
+PASS Main activity has Leanback launcher intent filter
+PASS No helper script disables or uninstalls the manufacturer launcher — []
+PASS Release identity has one central version source consumed by Gradle
+PASS WorkManager 2.12.0 metadata requirements are met
+PASS BuildConfig is explicitly generated and YSscores User-Agent follows current app version
+PASS Android launcher label is Abo Uobidah TV
+PASS Existing applicationId remains stable for upgrade compatibility
+PASS Gradle root project name matches product name
+PASS Release variant does not reuse the debug signing key
+PASS Legacy Android manifest package attribute removed
+PASS Legacy visible app title removed from active source
+PASS Build script saves Gradle test output
+PASS Windows PowerShell 5.1 native stderr is captured safely
+PASS Gradle tests and APK build use cmd.exe process capture with the true exit code
+PASS APK installer protects PowerShell 5.1 from native stderr termination
+PASS HOME setup protects PowerShell 5.1 from native stderr termination
+PASS Build script saves Gradle APK build output
+PASS Build script reports Gradle root-cause lines
+PASS Gradle worker execution is limited
+PASS Kotlin compiler uses in-process strategy
+PASS Kotlin Gradle plugin is compatible with Gradle 8.7 and AGP 8.6.1
+PASS GitHub publisher is release-only and never pushes source
+PASS GitHub publisher uses exact fixed asset name
+PASS GitHub publisher writes update manifest without UTF-8 BOM
+PASS No GitHub Actions workflow requires uploading source
+PASS Home control avoids illegal inherited lateinit backing-field access
+PASS Safe standalone APK installer exists
+PASS APK installer checks signature compatibility before in-place update
+PASS APK installer never performs automatic uninstall
+PASS APK installer blocks version downgrades
+PASS APK installer reads the central Gradle release identity
+PASS Release publisher reads the same central version and rejects manual mismatches
+PASS APK installer checks multiple devices before choosing target
+PASS SDK command-line tools are only downloaded when SDK packages are missing
+PASS GitHub-managed build uses the central monotonically increasing release identity
+PASS Legacy HOME setup entry point delegates to the checked implementation
+PASS Shell HOME helper checks ADB device and installed package
+PASS YSscores adapter reads public team pages over HTTPS with response-size and timeout limits
+PASS YSscores native parser extracts fixture links, marked scores, explicit statuses and source timezone
+PASS YSscores provider resolves the three built-in favourite clubs
+PASS YSscores logos are accepted only from its public HTTPS image hosts
+PASS Match repository routes YSscores results through normal next/last cache and fallback
+PASS Finished scores are checked against SofaScore even when optional multi-source mode is disabled
+PASS Native match screens pass the exact YSscores match URL to match details
+PASS Dynamic Island compares YSscores live feed scores for goal notifications
+PASS Parser fixtures cover finished/live/Arabic-digit/zone/logo cases
+PASS Network queue exposes a non-blocking submission result for loading screens
+PASS YSscores duplicate team downloads are deduplicated and transient failures are throttled
+PASS YSscores screen loads global daily fixtures and favourite teams in background
+PASS YSscores team page failure falls back to SofaScore
+PASS SofaScore global fixtures are cached and parsed
+PASS Phone match screen uses vertical scrolling for all match sections
+PASS Match screen uses YSscores as a supported-club fallback when configured sources return empty
+PASS Background prayer service defaults to a lower polling frequency
+PASS Match screen loads tracked clubs concurrently rather than serially
+PASS Match list does not fetch remote opponent crests for every card
+PASS M3U parser handles BOM, CRLF, metadata ordering, safe HTTP(S) URLs and duplicate suppression
+PASS Remote IPTV lists are streamed, header-checked and parsed before being saved
+PASS IPTV cache uses SHA-256 and validates legacy migration before promotion
+PASS IPTV preserves last known-good cache and writes replacement through unique temporary and backup files
+PASS IPTV cache restores the newest parseable backup and never deletes the last good copy on failed recovery
+PASS Match details open the in-app IPTV chooser with the actual fixture context
+PASS IPTV match launch prioritises live channels and displays the selected fixture
+PASS Local M3U import validates content and installs the file atomically
+PASS IPTV reports partial refresh failures and continues using valid downloaded data
+PASS IPTV latest-request gate prevents stale tab loads from repainting newer selections
+PASS M3U keeps distinct channel labels/groups that share a transport URL while collapsing identical rows
+PASS IPTV cache commits are latest-write-wins per playlist URL, independently of tab selection
+PASS IPTV explicitly recognises HLS manifests hidden behind query-based provider URLs
+PASS IPTV player reports network, HTTP, manifest and decoder failures separately
+PASS EPG is streamed to disk and gzip expansion is bounded including skipped bytes
+PASS EPG cache uses SHA-256, atomic promotion and crash recovery
+PASS EPG late responses cannot overwrite newer URL selections
+PASS Live score reconciliation rejects per-team regressions and merges complete score pairs atomically
+PASS Live match details refresh ESPN and YSscores from their own providers using exact fixture matching
+PASS M3U line reader bounds allocation before skipping malformed overlong lines
+PASS M3U UI uses the same composite row identity as the parser instead of collapsing channels by URL
+PASS Stale IPTV tab requests finish their source cache writes while only UI painting is gated
+PASS EPG rejects truncated programme-limit documents and incomplete XMLTV roots
+PASS EPG parser joins split title and display-name text and validates timestamps fully
+
+Project integrity audit: 84/84 passed, 0 failed

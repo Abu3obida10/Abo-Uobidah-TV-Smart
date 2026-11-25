@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Abo Uobidah TV</string>
+    <string name="app_name_ar">Abo Uobidah TV</string>
+    <string name="listener_label">Abo Uobidah TV - إشعارات الجزيرة</string>
+    <string name="home_accessibility_label">Abo Uobidah TV Home Control</string>
+    <string name="home_accessibility_description">تجربة توجيه زر Home إلى واجهة Abo Uobidah TV عند تسليم Android حدث المفتاح إلى الخدمة.</string>
+</resources>

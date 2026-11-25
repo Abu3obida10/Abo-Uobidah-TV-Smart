@@ -1,0 +1,542 @@
+{
+ "children": [
+  {
+   "name": "English Premier League",
+   "standings": {
+    "entries": [
+     {
+      "team": {
+       "id": "349",
+       "displayName": "AFC Bournemouth",
+       "name": "Bournemouth"
+      },
+      "note": {
+       "color": "#CCCCCC",
+       "description": "",
+       "rank": 8
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       {
+        "name": "ties",
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       {
+        "name": "losses",
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       {
+        "name": "pointsFor",
+        "value": 18.0,
+        "displayValue": "18"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 17.0,
+        "displayValue": "17"
+       },
+       {
+        "name": "pointDifferential",
+        "value": 1.0,
+        "displayValue": "+1"
+       },
+       {
+        "name": "points",
+        "value": 18.0,
+        "displayValue": "18"
+       },
+       {
+        "name": "rank",
+        "value": 8.0,
+        "displayValue": "8"
+       }
+      ]
+     },
+     {
+      "team": {
+       "id": "359",
+       "displayName": "Arsenal",
+       "name": "Arsenal"
+      },
+      "note": {
+       "color": "#81D6AC",
+       "description": "Champions League",
+       "rank": 1
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 9.0,
+        "displayValue": "9"
+       },
+       {
+        "name": "ties",
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       {
+        "name": "losses",
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       {
+        "name": "pointsFor",
+        "value": 26.0,
+        "displayValue": "26"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 8.0,
+        "displayValue": "8"
+       },
+       {
+        "name": "pointDifferential",
+        "value": 18.0,
+        "displayValue": "+18"
+       },
+       {
+        "name": "points",
+        "value": 29.0,
+        "displayValue": "29"
+       },
+       {
+        "name": "rank",
+        "value": 1.0,
+        "displayValue": "1"
+       }
+      ]
+     },
+     {
+      "team": {
+       "id": "363",
+       "displayName": "Chelsea",
+       "name": "Chelsea"
+      },
+      "note": {
+       "color": "#81D6AC",
+       "description": "Champions League",
+       "rank": 3
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 7.0,
+        "displayValue": "7"
+       },
+       {
+        "name": "ties",
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       {
+        "name": "losses",
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       {
+        "name": "pointsFor",
+        "value": 24.0,
+        "displayValue": "24"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 11.0,
+        "displayValue": "11"
+       },
+       {
+        "name": "pointDifferential",
+        "value": 13.0,
+        "displayValue": "+13"
+       },
+       {
+        "name": "points",
+        "value": 24.0,
+        "displayValue": "24"
+       },
+       {
+        "name": "rank",
+        "value": 3.0,
+        "displayValue": "3"
+       }
+      ]
+     },
+     {
+      "team": {
+       "id": "364",
+       "displayName": "Liverpool",
+       "name": "Liverpool"
+      },
+      "note": {
+       "color": "#CCCCCC",
+       "description": "",
+       "rank": 5
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 7.0,
+        "displayValue": "7"
+       },
+       {
+        "name": "ties",
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       {
+        "name": "losses",
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       {
+        "name": "pointsFor",
+        "value": 21.0,
+        "displayValue": "21"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 16.0,
+        "displayValue": "16"
+       },
+       {
+        "name": "pointDifferential",
+        "value": 5.0,
+        "displayValue": "+5"
+       },
+       {
+        "name": "points",
+        "value": 22.0,
+        "displayValue": "22"
+       },
+       {
+        "name": "rank",
+        "value": 5.0,
+        "displayValue": "5"
+       }
+      ]
+     },
+     {
+      "team": {
+       "id": "382",
+       "displayName": "Manchester City",
+       "name": "City"
+      },
+      "note": {
+       "color": "#81D6AC",
+       "description": "Champions League",
+       "rank": 2
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 8.0,
+        "displayValue": "8"
+       },
+       {
+        "name": "ties",
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       {
+        "name": "losses",
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       {
+        "name": "pointsFor",
+        "value": 29.0,
+        "displayValue": "29"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "pointDifferential",
+        "value": 17.0,
+        "displayValue": "+17"
+       },
+       {
+        "name": "points",
+        "value": 25.0,
+        "displayValue": "25"
+       },
+       {
+        "name": "rank",
+        "value": 2.0,
+        "displayValue": "2"
+       }
+      ]
+     },
+     {
+      "team": {
+       "id": "360",
+       "displayName": "Manchester United",
+       "name": "United"
+      },
+      "note": {
+       "color": "#CCCCCC",
+       "description": "",
+       "rank": 9
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       {
+        "name": "ties",
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       {
+        "name": "losses",
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       {
+        "name": "pointsFor",
+        "value": 19.0,
+        "displayValue": "19"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 19.0,
+        "displayValue": "19"
+       },
+       {
+        "name": "pointDifferential",
+        "value": 0.0,
+        "displayValue": "0"
+       },
+       {
+        "name": "points",
+        "value": 18.0,
+        "displayValue": "18"
+       },
+       {
+        "name": "rank",
+        "value": 9.0,
+        "displayValue": "9"
+       }
+      ]
+     },
+     {
+      "team": {
+       "id": "361",
+       "displayName": "Newcastle United",
+       "name": "United"
+      },
+      "note": {
+       "color": "#CCCCCC",
+       "description": "",
+       "rank": 7
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       {
+        "name": "ties",
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       {
+        "name": "losses",
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       {
+        "name": "pointsFor",
+        "value": 16.0,
+        "displayValue": "16"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 11.0,
+        "displayValue": "11"
+       },
+       {
+        "name": "pointDifferential",
+        "value": 5.0,
+        "displayValue": "+5"
+       },
+       {
+        "name": "points",
+        "value": 19.0,
+        "displayValue": "19"
+       },
+       {
+        "name": "rank",
+        "value": 7.0,
+        "displayValue": "7"
+       }
+      ]
+     },
+     {
+      "team": {
+       "id": "367",
+       "displayName": "Tottenham Hotspur",
+       "name": "Hotspur"
+      },
+      "note": {
+       "color": "#81D6AC",
+       "description": "Champions League",
+       "rank": 4
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 6.0,
+        "displayValue": "6"
+       },
+       {
+        "name": "ties",
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       {
+        "name": "losses",
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       {
+        "name": "pointsFor",
+        "value": 19.0,
+        "displayValue": "19"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 10.0,
+        "displayValue": "10"
+       },
+       {
+        "name": "pointDifferential",
+        "value": 9.0,
+        "displayValue": "+9"
+       },
+       {
+        "name": "points",
+        "value": 22.0,
+        "displayValue": "22"
+       },
+       {
+        "name": "rank",
+        "value": 4.0,
+        "displayValue": "4"
+       }
+      ]
+     },
+     {
+      "team": {
+       "id": "371",
+       "displayName": "Wolverhampton Wanderers",
+       "name": "Wanderers"
+      },
+      "note": {
+       "color": "#CCCCCC",
+       "description": "",
+       "rank": 20
+      },
+      "stats": [
+       {
+        "name": "gamesPlayed",
+        "value": 12.0,
+        "displayValue": "12"
+       },
+       {
+        "name": "wins",
+        "value": 0.0,
+        "displayValue": "0"
+       },
+       {
+        "name": "ties",
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       {
+        "name": "losses",
+        "value": 10.0,
+        "displayValue": "10"
+       },
+       {
+        "name": "pointsFor",
+        "value": 6.0,
+        "displayValue": "6"
+       },
+       {
+        "name": "pointsAgainst",
+        "value": 29.0,
+        "displayValue": "29"
+       },
+       {
+        "name": "pointDifferential",
+        "value": -23.0,
+        "displayValue": "-23"
+       },
+       {
+        "name": "points",
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       {
+        "name": "rank",
+        "value": 20.0,
+        "displayValue": "20"
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

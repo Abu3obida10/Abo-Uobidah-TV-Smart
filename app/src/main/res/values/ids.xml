@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- مفتاح حارس التحميل في Img.load؛ منفصل عن View.tag كي لا تُمحى وسوم الواجهة مثل channel-logo -->
+    <item name="img_load_key" type="id" />
+</resources>

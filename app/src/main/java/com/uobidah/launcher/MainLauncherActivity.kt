@@ -81,6 +81,8 @@ class MainLauncherActivity : BaseActivity() {
     private var prayerRequestedDate: LocalDate? = null
     private var shownPrayerDate: LocalDate? = null
     private var tickCount = 0
+    private var lastClockText = ""
+    private var lastHotPrayer = ""
     private var sig = ""
     private var cityKey = ""
 
@@ -3125,8 +3127,13 @@ class MainLauncherActivity : BaseActivity() {
         val now = PrayerRepo.localNow(prefs)
         val h12 = if (now.hour % 12 == 0) 12 else now.hour % 12
         val displayHour = if (prefs.use24HourClock) now.hour else h12
-        tvTime.text = String.format(Locale.US, "%02d:%02d", displayHour, now.minute)
-        tvAmPm.text = if (prefs.use24HourClock) "" else if (now.hour < 12) "ص" else "م"
+        // الساعة بدقائق فقط: لا تعيد كتابة النص (وإعادة قياس الواجهة) كل ثانية بلا تغيير.
+        val clockText = String.format(Locale.US, "%02d:%02d", displayHour, now.minute)
+        if (clockText != lastClockText) {
+            lastClockText = clockText
+            tvTime.text = clockText
+            tvAmPm.text = if (prefs.use24HourClock) "" else if (now.hour < 12) "ص" else "م"
+        }
 
         if (shownDate != now.toLocalDate()) {
             shownDate = now.toLocalDate()
@@ -3328,15 +3335,20 @@ class MainLauncherActivity : BaseActivity() {
         tvPCount.text = PrayerRepo.countdown(now, nx.second)
         tvPAdhan?.text = adhanLine(nx.second)
         tvPQibla?.text = com.uobidah.launcher.core.Qibla.label(prefs.cityLat, prefs.cityLon).orEmpty()
-        for (k in PrayerRepo.keys) {
-            val hot = k == nx.first
-            val gold = Color.parseColor("#E8C98A")
-            val hotColor = if (archHighlight) gold else ut.accent
-            prayerNames[k]?.setTextColor(if (hot) hotColor else ut.dim)
-            prayerTimes[k]?.setTextColor(if (hot) hotColor else ut.text)
-            if (archHighlight) {
-                val cell = prayerNames[k]?.parent?.parent as? View
-                cell?.background = Ui.round(Ui.over(ut.cardFocus, ut.bgBottom), px(17f).toFloat(), if (hot) px(3f) else px(1f), if (hot) gold else ut.border)
+        // إعادة تلوين خلايا المواقيت وإنشاء خلفيات جديدة كل ثانية كان يجهد خيط الواجهة
+        // على أجهزة التلفزيون الضعيفة؛ لا نعيد الرسم إلا عندما تتغير الصلاة الحالية.
+        if (nx.first != lastHotPrayer) {
+            lastHotPrayer = nx.first
+            for (k in PrayerRepo.keys) {
+                val hot = k == nx.first
+                val gold = Color.parseColor("#E8C98A")
+                val hotColor = if (archHighlight) gold else ut.accent
+                prayerNames[k]?.setTextColor(if (hot) hotColor else ut.dim)
+                prayerTimes[k]?.setTextColor(if (hot) hotColor else ut.text)
+                if (archHighlight) {
+                    val cell = prayerNames[k]?.parent?.parent as? View
+                    cell?.background = Ui.round(Ui.over(ut.cardFocus, ut.bgBottom), px(17f).toFloat(), if (hot) px(3f) else px(1f), if (hot) gold else ut.border)
+                }
             }
         }
     }
@@ -3344,27 +3356,40 @@ class MainLauncherActivity : BaseActivity() {
     // =====================================================================
     // الواي فاي والمعزز
     // =====================================================================
+    private var lastWifiText = ""
+
     @Suppress("DEPRECATION")
     private fun updateWifi() {
-        var txt = "📶 غير متصل"
-        try {
-            val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val caps = cm.getNetworkCapabilities(cm.activeNetwork)
-            if (caps != null) {
-                if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                    val wm = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-                    var ssid = wm.connectionInfo?.ssid ?: ""
-                    ssid = ssid.trim('"')
-                    txt = if (ssid.isEmpty() || ssid == "<unknown ssid>") "📶 واي فاي متصل" else "📶 $ssid"
-                } else if (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                    txt = "🔌 إيثرنت"
-                } else {
-                    txt = "🌐 متصل"
+        // قراءة حالة الاتصال/الواي فاي تنادى على النظام عبر IPC وقد تحجب خيط الواجهة على
+        // بعض أجهزة التلفزيون؛ انقلها للخلفية ولا ترسل للواجهة إلا النص النهائي.
+        val app = applicationContext
+        Net.bg {
+            var txt = "📶 غير متصل"
+            try {
+                val cm = app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val caps = cm.getNetworkCapabilities(cm.activeNetwork)
+                if (caps != null) {
+                    if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        val wm = app.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                        var ssid = wm.connectionInfo?.ssid ?: ""
+                        ssid = ssid.trim('"')
+                        txt = if (ssid.isEmpty() || ssid == "<unknown ssid>") "📶 واي فاي متصل" else "📶 $ssid"
+                    } else if (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                        txt = "🔌 إيثرنت"
+                    } else {
+                        txt = "🌐 متصل"
+                    }
+                }
+            } catch (e: Exception) {
+            }
+            Net.ui {
+                if (isFinishing || isDestroyed) return@ui
+                if (txt != lastWifiText) {
+                    lastWifiText = txt
+                    if (::tvWifi.isInitialized) tvWifi.text = txt
                 }
             }
-        } catch (e: Exception) {
         }
-        if (::tvWifi.isInitialized) tvWifi.text = txt
     }
 
     /** يفتح شاشة المداخل المخصصة مباشرة؛ لا يحوّل المستخدم إلى إعدادات Android العامة. */

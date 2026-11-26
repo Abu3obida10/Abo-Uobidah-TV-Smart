@@ -53,6 +53,57 @@ class TvInputsIntentTest {
         assertEquals("عند عدم اتصال HDMI، تطبيق التلفزيون المحفوظ هو البديل", TvInputRoutingPolicy.DirectRoute.SAVED_TV_APP, route)
     }
 
+    @Test fun hdmiButtonPrefersHdmiOneAmongConnectedInputs() {
+        val idx = TvInputRoutingPolicy.indexOfPreferredHdmi(
+            labels = listOf("HDMI 2", "HDMI 1", "HDMI 3"),
+            states = listOf(
+                TvInputManager.INPUT_STATE_CONNECTED,
+                TvInputManager.INPUT_STATE_CONNECTED,
+                TvInputManager.INPUT_STATE_CONNECTED
+            ),
+            connectedState = TvInputManager.INPUT_STATE_CONNECTED,
+            connectedStandbyState = TvInputManager.INPUT_STATE_CONNECTED_STANDBY
+        )
+        assertEquals("زر HDMI يفتح HDMI 1 افتراضيًا ولو كان ترتيبه ثانيًا", 1, idx)
+    }
+
+    @Test fun hdmiButtonFallsBackToFirstAvailableWhenNoHdmiOneLabelExists() {
+        val idx = TvInputRoutingPolicy.indexOfPreferredHdmi(
+            labels = listOf("AV", "مدخل", "مدخل"),
+            states = listOf(
+                TvInputManager.INPUT_STATE_DISCONNECTED,
+                TvInputManager.INPUT_STATE_CONNECTED_STANDBY,
+                TvInputManager.INPUT_STATE_CONNECTED
+            ),
+            connectedState = TvInputManager.INPUT_STATE_CONNECTED,
+            connectedStandbyState = TvInputManager.INPUT_STATE_CONNECTED_STANDBY
+        )
+        assertEquals(1, idx)
+    }
+
+    @Test fun hdmiButtonNeverOpensDisconnectedHdmiOne() {
+        val idx = TvInputRoutingPolicy.indexOfPreferredHdmi(
+            labels = listOf("HDMI 1", "HDMI 2"),
+            states = listOf(
+                TvInputManager.INPUT_STATE_DISCONNECTED,
+                TvInputManager.INPUT_STATE_CONNECTED
+            ),
+            connectedState = TvInputManager.INPUT_STATE_CONNECTED,
+            connectedStandbyState = TvInputManager.INPUT_STATE_CONNECTED_STANDBY
+        )
+        assertEquals("HDMI 1 المفصول لا يُفتح؛ يُختار مدخل متصل", 1, idx)
+    }
+
+    @Test fun hdmiOneLabelIgnoresHigherPortNumbers() {
+        assertTrue(TvInputRoutingPolicy.isHdmiOneLabel("HDMI 1"))
+        assertTrue(TvInputRoutingPolicy.isHdmiOneLabel("hdmi1"))
+        assertTrue(TvInputRoutingPolicy.isHdmiOneLabel("HDMI 1 (ARC)"))
+        assertFalse(TvInputRoutingPolicy.isHdmiOneLabel("HDMI 2"))
+        assertFalse(TvInputRoutingPolicy.isHdmiOneLabel("HDMI 10"))
+        assertFalse(TvInputRoutingPolicy.isHdmiOneLabel("AV"))
+        assertFalse(TvInputRoutingPolicy.isHdmiOneLabel(""))
+    }
+
     @Test fun directRouteUsesConnectedHdmiWhenNoSavedTvApplicationExists() {
         val route = TvInputRoutingPolicy.selectDirectRoute(
             savedTvAppResolvable = false,

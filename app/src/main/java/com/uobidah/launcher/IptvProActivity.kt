@@ -627,9 +627,10 @@ class IptvProActivity : BaseActivity() {
                 favs.add(Channel(f.name, f.url, "⭐", "", f.logo))
             }
             allChannels = favs
-            applyFilter()
-            if (favs.isEmpty()) tvCount.text = tabs[tab].emptyHint
-            else playPendingFavoriteWhenReady()
+            val hint = tabs[tab].emptyHint
+            applyFilter {
+                if (favs.isNotEmpty()) playPendingFavoriteWhenReady() else tvCount.text = hint
+            }
             return
         }
         if (tabs.getOrNull(tab)?.history == true) {
@@ -639,8 +640,7 @@ class IptvProActivity : BaseActivity() {
                 if (u.isNotBlank()) hs.add(Channel(e.substringBefore("||").ifBlank { u }, u, "🕘"))
             }
             allChannels = hs
-            applyFilter()
-            if (hs.isEmpty()) tvCount.text = tabs[tab].emptyHint
+            applyFilter { if (hs.isEmpty()) tvCount.text = tabs[tab].emptyHint }
             return
         }
         val urls = urlsForTab()
@@ -648,8 +648,8 @@ class IptvProActivity : BaseActivity() {
         tvCount.text = "جاري التحميل..."
         if (urls.isEmpty()) {
             allChannels = emptyList()
-            applyFilter()
-            tvCount.text = tabs.getOrNull(tab)?.emptyHint?.ifBlank { "لا توجد قوائم" } ?: "لا توجد قوائم"
+            val hint = tabs.getOrNull(tab)?.emptyHint?.ifBlank { "لا توجد قوائم" } ?: "لا توجد قوائم"
+            applyFilter { tvCount.text = hint }
             return
         }
         val queued = Net.submitBg {
@@ -713,16 +713,17 @@ class IptvProActivity : BaseActivity() {
                     if (shownData.isNotEmpty()) {
                         allChannels = shownData
                         backfillFavoriteLogos(shownData)
-                        applyFilter()
                         val notices = ArrayList<String>()
                         if (hadNetworkFailure) notices.add(if (usedFallbackCache) "استخدمنا النسخة المحفوظة لبعض القوائم" else "تعذر تحديث بعض المصادر")
                         if (cacheWriteFailure) notices.add("تعذر حفظ نسخة محلية")
-                        if (notices.isNotEmpty()) tvCount.text = "${shownData.size} قناة • " + notices.joinToString(" • ")
+                        applyFilter {
+                            if (notices.isNotEmpty()) tvCount.text = "${shownData.size} قناة • " + notices.joinToString(" • ")
+                        }
                     } else {
                         allChannels = emptyList()
-                        applyFilter()
-                        tvCount.text = if (urls.all { isLocal(it) }) "لا توجد قنوات صالحة في الملف" else
+                        val failureText = if (urls.all { isLocal(it) }) "لا توجد قنوات صالحة في الملف" else
                             "تعذر تحميل قائمة صالحة؛ " + lastFailureDetail.ifBlank { "راجع الرابط والإنترنت" }
+                        applyFilter { tvCount.text = failureText }
                     }
                 }
             }
@@ -765,28 +766,51 @@ class IptvProActivity : BaseActivity() {
         }
     }
 
-    private fun applyFilter() {
-        shown.clear()
-        var matched = 0
-        for (c in allChannels) {
-            if (groupFilter.isNotEmpty() && c.group != groupFilter) continue
-            if (typeFilter != 0 && kindOf(c) != typeFilter) continue
-            if (query.isEmpty() || c.name.contains(query, true) || c.group.contains(query, true)) {
-                matched++
-                if (shown.size < MAX_VISIBLE_CHANNELS) shown.add(c)
+    // كل تشغيل فلترة يحمل رقمًا متزايدًا؛ نتيجة قديمة لا ترسم فوق نتيجة أحدث.
+    private val filterGate = com.uobidah.launcher.core.LatestRequestGate()
+
+    /**
+     * الفلترة وبناء صفوف القائمة كانا يعملان على خيط الواجهة، فيتجمد التلفزيون ثوانيَ (أو يظهر
+     * «التطبيق لا يستجيب») مع ملف قنوات كبير يضم عشرات الآلاف. الآن يُحسب كل شيء في الخلفية
+     * ولا تلمس الواجهة إلا النتيجة الجاهزة.
+     */
+    private fun applyFilter(onDone: (() -> Unit)? = null) {
+        val source = allChannels
+        val q = query
+        val gf = groupFilter
+        val tf = typeFilter
+        val urlPlaying = playingUrl
+        val token = filterGate.begin()
+        Net.bg {
+            val filtered = ArrayList<Channel>()
+            var matched = 0
+            for (c in source) {
+                if (gf.isNotEmpty() && c.group != gf) continue
+                if (tf != 0 && kindOf(c) != tf) continue
+                if (q.isEmpty() || c.name.contains(q, true) || c.group.contains(q, true)) {
+                    matched++
+                    if (filtered.size < MAX_VISIBLE_CHANNELS) filtered.add(c)
+                }
+            }
+            // Keep all channels in memory for search, but cap adapter rows for low-memory TVs.
+            val rows = ArrayList<String>(filtered.size)
+            for (c in filtered) rows.add(epgRow(c))
+            val newPlayingIndex = if (urlPlaying.isEmpty()) -1 else filtered.indexOfFirst { it.url == urlPlaying }
+            Net.ui {
+                if (!filterGate.isCurrent(token) || isFinishing || isDestroyed) return@ui
+                shown.clear()
+                shown.addAll(filtered)
+                playingIndex = newPlayingIndex
+                adapter.setNotifyOnChange(false)
+                adapter.clear()
+                adapter.addAll(rows)
+                adapter.notifyDataSetChanged()
+                typeBtn.text = "🎞 النوع: " + typeLabels[typeFilter]
+                groupBtn.text = "🗂 " + (if (groupFilter.isEmpty()) "التصنيف" else groupFilter)
+                tvCount.text = if (matched > shown.size) "عرض ${shown.size} من $matched قناة؛ استخدم البحث لتضييق النتائج" else "$matched قناة"
+                onDone?.invoke()
             }
         }
-        // Keep all channels in memory for search, but cap adapter rows for low-memory TVs.
-        playingIndex = if (playingUrl.isEmpty()) -1 else shown.indexOfFirst { it.url == playingUrl }
-        adapter.setNotifyOnChange(false)
-        adapter.clear()
-        val rows = ArrayList<String>(shown.size)
-        for (c in shown) rows.add(epgRow(c))
-        adapter.addAll(rows)
-        adapter.notifyDataSetChanged()
-        typeBtn.text = "🎞 النوع: " + typeLabels[typeFilter]
-        groupBtn.text = "🗂 " + (if (groupFilter.isEmpty()) "التصنيف" else groupFilter)
-        tvCount.text = if (matched > shown.size) "عرض ${shown.size} من $matched قناة؛ استخدم البحث لتضييق النتائج" else "$matched قناة"
     }
 
     /** اختيار عنصر واحد من قائمة (أزرار قابلة للتمرير والتركيز بالريموت). */
@@ -821,14 +845,20 @@ class IptvProActivity : BaseActivity() {
     }
 
     private fun pickGroup() {
-        val groups = allChannels.map { it.group }.filter { it.isNotBlank() }.distinct().sorted()
-        if (groups.isEmpty()) { toast("لا توجد تصنيفات في هذه القائمة"); return }
-        val labels = ArrayList<String>()
-        labels.add("الكل")
-        labels.addAll(groups)
-        pickOne("🗂 اختر التصنيف", labels) { i ->
-            groupFilter = if (i == 0) "" else labels[i]
-            applyFilter()
+        val source = allChannels
+        Net.bg {
+            val groups = source.map { it.group }.filter { it.isNotBlank() }.distinct().sorted()
+            Net.ui {
+                if (isFinishing || isDestroyed) return@ui
+                if (groups.isEmpty()) { toast("لا توجد تصنيفات في هذه القائمة"); return@ui }
+                val labels = ArrayList<String>()
+                labels.add("الكل")
+                labels.addAll(groups)
+                pickOne("🗂 اختر التصنيف", labels) { i ->
+                    groupFilter = if (i == 0) "" else labels[i]
+                    applyFilter()
+                }
+            }
         }
     }
 

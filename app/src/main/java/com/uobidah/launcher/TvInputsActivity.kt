@@ -219,13 +219,18 @@ class TvInputsActivity : BaseActivity() {
             }
         }
 
-        val connectedHdmi = inputStates.firstOrNull {
-            TvInputRoutingPolicy.isDirectlyAvailableInputState(
-                it.second,
-                TvInputManager.INPUT_STATE_CONNECTED,
-                TvInputManager.INPUT_STATE_CONNECTED_STANDBY
-            )
-        }?.first
+        // HDMI 1 هو المدخل الافتراضي لزر HDMI: يُفضَّل على باقي المداخل المتصلة بطلب المستخدم.
+        val preferredIndex = TvInputRoutingPolicy.indexOfPreferredHdmi(
+            inputStates.map { (info, _) ->
+                (try { info.loadCustomLabel(this)?.toString() } catch (_: Exception) { null })
+                    ?: (try { info.loadLabel(this)?.toString() } catch (_: Exception) { null })
+                    ?: typeName(info.type)
+            },
+            inputStates.map { it.second },
+            TvInputManager.INPUT_STATE_CONNECTED,
+            TvInputManager.INPUT_STATE_CONNECTED_STANDBY
+        )
+        val connectedHdmi = inputStates.getOrNull(preferredIndex)?.first
         if (connectedHdmi != null) {
             launchInput(connectedHdmi)
             return

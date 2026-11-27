@@ -439,7 +439,9 @@ object Img {
 object TeamBadgeUi {
     fun create(context: Context, teamName: String, badgeUrl: String, sizeDp: Int, accent: Int): View {
         val frame = FrameLayout(context)
-        val size = (sizeDp * context.resources.displayMetrics.density + 0.5f).toInt()
+        // نفس مرجع القياس المستخدم في الحاويات (عرض الشاشة/1920) — استخدام الكثافة هنا كان
+        // يجعل الشعار أكبر من حاويته على الشاشات عالية الكثافة (ظهر قصّ الشعارات في اختبارات التصيير)
+        val size = Ui.p(context, sizeDp.toFloat())
         val fallback = TextView(context)
         fallback.text = teamName.trim().firstOrNull()?.toString() ?: "⚽"
         fallback.textSize = (sizeDp * 0.34f).coerceIn(20f, 34f)

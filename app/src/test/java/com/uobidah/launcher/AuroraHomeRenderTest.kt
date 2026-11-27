@@ -131,28 +131,28 @@ abstract class AuroraHomeRenderTestBase {
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [34], qualifiers = "w1920dp-h1080dp-mdpi-land")
+@Config(sdk = [34], qualifiers = "w1920dp-h1080dp-land-mdpi")
 class AuroraHomeRender1080pTest : AuroraHomeRenderTestBase()
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [34], qualifiers = "w1280dp-h800dp-mdpi-land")
+@Config(sdk = [34], qualifiers = "w1280dp-h800dp-land-mdpi")
 class AuroraHomeRender800pTest : AuroraHomeRenderTestBase()
 
 /** تلفاز المستخدم JVC: ‏1920x1080 بكثافة tvdpi ‏(213dpi) — هدف الأداء الأساسي لكل إصدار. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [34], qualifiers = "w1442dp-h811dp-tvdpi-land")
+@Config(sdk = [34], qualifiers = "w1442dp-h811dp-land-tvdpi")
 class AuroraHomeRenderHisJvcTvTest : AuroraHomeRenderTestBase()
 
 /** جهاز يبلّغ كثافة xhdpi على لوحة 1080p: سقف مقياس أورورا يمنع فيض الأقسام خارج الشاشة. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [34], qualifiers = "w960dp-h540dp-xhdpi-land")
+@Config(sdk = [34], qualifiers = "w960dp-h540dp-land-xhdpi")
 class AuroraHomeRenderXhdpiBoxTest : AuroraHomeRenderTestBase()
 
 /** مقاس جهاز المستخدم الثاني من لقطات الشاشة المرسلة (2560x1183). */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [34], qualifiers = "w1280dp-h591dp-xhdpi-land")
+@Config(sdk = [34], qualifiers = "w1280dp-h591dp-land-xhdpi")
 class AuroraHomeRenderUserDeviceTest : AuroraHomeRenderTestBase()

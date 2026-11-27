@@ -76,7 +76,7 @@ add("No helper script disables or uninstalls the manufacturer launcher", not des
 
 build = (ROOT / "app/build.gradle").read_text(encoding="utf-8")
 version_props = (ROOT / "gradle.properties").read_text(encoding="utf-8")
-add("Release identity has one central version source consumed by Gradle", "appVersionName=1.0.54" in version_props and "appVersionCode=75" in version_props and 'providers.gradleProperty("appVersionName")' in build and 'providers.gradleProperty("appVersionCode")' in build)
+add("Release identity has one central version source consumed by Gradle", "appVersionName=1.0.55" in version_props and "appVersionCode=76" in version_props and 'providers.gradleProperty("appVersionName")' in build and 'providers.gradleProperty("appVersionCode")' in build)
 add("WorkManager 2.12.0 metadata requirements are met", "androidx.work:work-runtime-ktx:2.12.0" in build and "compileSdk 35" in build and "com.android.application' version '8.6.1'" in (ROOT / "build.gradle").read_text(encoding="utf-8"))
 ys_provider = (SRC / "com/uobidah/launcher/YallaScoresProvider.kt").read_text(encoding="utf-8")
 add("BuildConfig is explicitly generated and YSscores User-Agent follows current app version", "buildConfig true" in build and "BuildConfig.VERSION_NAME" in ys_provider and "1.0.42-merge21" not in ys_provider)
@@ -132,7 +132,7 @@ publisher = (ROOT / "PUBLISH_RELEASE_ONLY.ps1").read_text(encoding="utf-8-sig")
 add("Release publisher reads the same central version and rejects manual mismatches", "gradle.properties" in publisher and "appVersionName" in publisher and "appVersionCode" in publisher and "VersionCode المطلوب لا يطابق رقم البناء المركزي" in publisher)
 add("APK installer checks multiple devices before choosing target", "Multiple authorized devices" in installer and "Device number" in installer)
 add("SDK command-line tools are only downloaded when SDK packages are missing", "A complete local SDK can still build offline" in (ROOT / "AUTO_BUILD_INSTALL.ps1").read_text(encoding="utf-8-sig"))
-add("GitHub-managed build uses the central monotonically increasing release identity", "appVersionName=1.0.54" in version_props and "appVersionCode=75" in version_props and 'providers.gradleProperty("appVersionName")' in build)
+add("GitHub-managed build uses the central monotonically increasing release identity", "appVersionName=1.0.55" in version_props and "appVersionCode=76" in version_props and 'providers.gradleProperty("appVersionName")' in build)
 add("Legacy HOME setup entry point delegates to the checked implementation", "FORCE_HOME_ADB.ps1" in (ROOT / "SET_UOBIDAH_HOME_SAFE.ps1").read_text(encoding="utf-8"))
 add("Shell HOME helper checks ADB device and installed package", "No authorized ADB device" in (ROOT / "force_home_adb.sh").read_text(encoding="utf-8") and "pm path" in (ROOT / "force_home_adb.sh").read_text(encoding="utf-8"))
 

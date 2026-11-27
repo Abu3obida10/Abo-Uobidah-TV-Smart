@@ -290,13 +290,15 @@ object MatchCards {
             match == null && !m.teamOk -> "غير متاح"
             match == null && m.kind == "live" -> "لا يوجد مباشر"
             match == null -> "لا توجد بيانات"
-            st == MatchState.LIVE -> "● جارية"
-            st == MatchState.FINISHED -> "■ منتهية"
-            st == MatchState.POSTPONED -> "⏸ مؤجلة"
-            st == MatchState.CANCELED -> "✕ ملغاة"
-            st == MatchState.SUSPENDED -> "⏸ متوقفة مؤقتًا"
-            st == MatchState.UNKNOWN -> "؟ حالة غير مؤكدة"
-            else -> "▦ قادمة"
+            // كلمات عربية فقط بدون رموز يونيكود: خطوط بعض أجهزة التلفزيون تفتقد الرموز
+            // (● ■ ⏸ ✕ ▦) فتظهر مربعات أو تتحول عبر IconTextView لأيقونة لا علاقة لها بالحالة.
+            st == MatchState.LIVE -> "جارية"
+            st == MatchState.FINISHED -> "منتهية"
+            st == MatchState.POSTPONED -> "مؤجلة"
+            st == MatchState.CANCELED -> "ملغاة"
+            st == MatchState.SUSPENDED -> "متوقفة مؤقتًا"
+            st == MatchState.UNKNOWN -> "حالة غير مؤكدة"
+            else -> "قادمة"
         }
 
         fun pill(size: Float = 17f): TextView {

@@ -778,8 +778,9 @@ class MainLauncherActivity : BaseActivity() {
             contentDescription = "البث المباشر"
             tag = "r8-live-card"
         }
-        val glyph = Ui.label(this, "▣", asp(62f), ut.accent, true).apply {
-            gravity = Gravity.CENTER
+        val glyph = ImageView(this).apply {
+            setImageDrawable(Icons.drawable("tv", ut.accent, apx(48f)))
+            scaleType = ImageView.ScaleType.CENTER
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
                 setColor(Ui.withAlpha(ut.accent, 32))
@@ -3486,12 +3487,12 @@ class MainLauncherActivity : BaseActivity() {
         }
     }
 
-    /** زر دائري صغير داخل حبة الحالة في واجهة أورورا (رمز وظيفي صغير فقط، لا أيقونات مرسومة للتطبيقات). */
-    private fun auroraPillButton(glyph: String, desc: String, action: () -> Unit): TextView {
-        val b = Ui.label(this, glyph, asp(22f), ut.text, true)
-        b.gravity = Gravity.CENTER
+    /** زر دائري صغير داخل حبة الحالة في واجهة أورورا: أيقونة Vector حقيقية من Icons (لا رموز نصية — خطوط بعض أجهزة التلفزيون تفتقدها فتظهر دوائر فارغة). */
+    private fun auroraPillButton(iconKey: String, desc: String, action: () -> Unit): ImageView {
+        val b = ImageView(this)
+        b.setImageDrawable(Icons.drawable(iconKey, ut.text, apx(26f)))
+        b.scaleType = ImageView.ScaleType.CENTER
         b.contentDescription = desc
-        b.maxLines = 1
         Ui.focusable(b, ut, 200f, Ui.withAlpha(ut.text, 22))
         b.isClickable = true
         b.setOnClickListener { action() }
@@ -3534,7 +3535,14 @@ class MainLauncherActivity : BaseActivity() {
             iv.contentDescription = label
             item.addView(iv, Ui.lp(iconSize, iconSize))
         } else {
-            item.addView(Ui.label(this, if (addTile) "+" else "▦", asp(30f), ut.accent, true).apply { gravity = Gravity.CENTER }, Ui.lp(iconSize, iconSize))
+            if (addTile) {
+                item.addView(Ui.label(this, "+", asp(30f), ut.accent, true).apply { gravity = Gravity.CENTER }, Ui.lp(iconSize, iconSize))
+            } else {
+                val fb = ImageView(this)
+                fb.setImageDrawable(Icons.drawable("apps", ut.accent, apx(28f)))
+                fb.scaleType = ImageView.ScaleType.CENTER
+                item.addView(fb, Ui.lp(iconSize, iconSize))
+            }
         }
         item.addView(Ui.label(this, label, asp(18f), ut.text, true).apply {
             maxLines = 1
@@ -3602,14 +3610,13 @@ class MainLauncherActivity : BaseActivity() {
         clockBox.addView(tvAmPm, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, apx(5f), 0, 0, 0))
         pill.addView(clockBox, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, apx(4f), 0))
         pill.addView(auroraPillDivider())
-        tvWifi = auroraPillButton("📶", "الشبكة") { openWifi() }
-        pill.addView(tvWifi, Ui.lpm(Ui.WRAP, apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("wifi", "الشبكة") { openWifi() }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
         pill.addView(auroraPillDivider())
-        pill.addView(auroraPillButton("▣", "مدخل التلفزيون") { openHdmi() }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
-        pill.addView(auroraPillButton("⌕", "بحث في التطبيقات") { openAppSearch() }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
-        pill.addView(auroraPillButton("♧", "مركز التنبيهات") { startActivity(Intent(this, NotificationCenterActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
-        pill.addView(auroraPillButton("🖼", "الخلفيات") { startActivity(Intent(this, WallpaperActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
-        pill.addView(auroraPillButton("⚙", "الإعدادات") { startActivity(Intent(this, SettingsActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("tv", "مدخل التلفزيون") { openHdmi() }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("search", "بحث في التطبيقات") { openAppSearch() }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("bell", "مركز التنبيهات") { startActivity(Intent(this, NotificationCenterActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("image", "الخلفيات") { startActivity(Intent(this, WallpaperActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("settings", "الإعدادات") { startActivity(Intent(this, SettingsActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
         top.addView(pill, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.CENTER_HORIZONTAL or Gravity.TOP))
 
         // كتلة المدينة والتاريخ (الجهة اليمنى)

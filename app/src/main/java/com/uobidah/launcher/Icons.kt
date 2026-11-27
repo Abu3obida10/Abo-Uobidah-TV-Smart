@@ -88,6 +88,9 @@ object Icons {
             val b = bounds
             if (b.isEmpty) return
             val sc = b.width() / 24f
+            // سماكة الخط تتبع حجم الأيقونة: بدون هذا كانت الأيقونات الكبيرة ترسم بخط 1.9px ثابت
+            // فتبدو باهتة على التلفزيون (الكانفس متدرج لكن سماكة القلم لا ترث التدرج تلقائيًا).
+            paint.strokeWidth = 1.9f * sc
             canvas.save()
             canvas.translate(b.left.toFloat(), b.top.toFloat())
             canvas.scale(sc, sc)
@@ -338,7 +341,9 @@ object IconData {
         "🎮" to "gamepad",
         "🧩" to "apps",
         "▦" to "apps",
-        "▣" to "apps",
+        "▣" to "tv"
+        "⌕" to "search"
+        "♧" to "bell",
         "▧" to "apps",
         "🔲" to "apps",
         "⬜" to "apps",

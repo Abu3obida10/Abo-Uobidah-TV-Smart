@@ -1,6 +1,9 @@
 pluginManagement {
     repositories {
         google()
+        // Google-hosted full mirror of Maven Central (separate infrastructure; dodges repo1 429 throttling)
+        maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
         // Official Maven Central alternate hostname; useful on networks that reset
         // TLS sessions to repo.maven.apache.org. HTTPS certificate checks stay enabled.
         maven { url 'https://repo1.maven.org/maven2/' }
@@ -12,6 +15,9 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
+        // Google-hosted full mirror of Maven Central (separate infrastructure; dodges repo1 429 throttling)
+        maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
         // Official Maven Central alternate hostname; checksums and TLS remain enforced.
         maven { url 'https://repo1.maven.org/maven2/' }
         mavenCentral()

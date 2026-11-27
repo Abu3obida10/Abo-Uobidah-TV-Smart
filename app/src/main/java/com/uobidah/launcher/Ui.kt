@@ -263,10 +263,10 @@ object Ui {
         val focusColor = FocusStyle.color
         val design = CardDesigns.index(ctx)
         val rad = CardDesigns.radius(design, radiusPx)
-        val halo = round(withAlpha(focusColor, 82), rad + p(ctx, 5f))
-        val inner = round(over(t.cardFocus, t.bgBottom), rad, p(ctx, 4f), focusColor)
+        val halo = round(withAlpha(focusColor, 120), rad + p(ctx, 6f))
+        val inner = round(over(t.cardFocus, t.bgBottom), rad, p(ctx, 5f), focusColor)
         val layers = LayerDrawable(arrayOf<Drawable>(halo, inner))
-        val inset = p(ctx, 5f)
+        val inset = p(ctx, 6f)
         layers.setLayerInset(1, inset, inset, inset, inset)
         val normal = CardDesigns.normal(ctx, t, rad, fill, design)
         val sl = StateListDrawable()
@@ -282,7 +282,7 @@ object Ui {
         v.setOnFocusChangeListener { view, has ->
             // حركة خفيفة: تكبير بسيط بدون ظل (الظل مكلف على أجهزة التلفزيون الضعيفة).
             if (Motion.enabled(ctx)) {
-                val sc = if (has) 1.02f else 1f
+                val sc = if (has) 1.04f else 1f
                 view.animate().cancel()
                 view.animate().scaleX(sc).scaleY(sc).setDuration(90L).start()
             } else {

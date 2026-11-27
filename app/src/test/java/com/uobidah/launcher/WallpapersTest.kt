@@ -14,4 +14,12 @@ class WallpapersTest {
         assertTrue(urls[0].endsWith("a.jpg?x=1"))
         assertTrue(urls[1].endsWith("b.png"))
     }
+
+    @Test fun acceptsCommonsThumbHostWhichServesAllApiThumbs() {
+        // رد Commons الحقيقي يضع المصغّرات على thumb.wikimedia.org؛ رفضه كان يصفّر كل نتائج البحث.
+        val json = """{"query":{"pages":{"1":{"imageinfo":[{"thumburl":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/File.jpeg/1920px-File.jpeg","url":"https://upload.wikimedia.org/wikipedia/commons/9/97/File.jpeg"}]},"2":{"imageinfo":[{"thumburl":"https://evil.example.org/x.jpg"}]}}}}}"""
+        val urls = Wallpapers.parseCommonsImageUrls(json)
+        assertEquals(1, urls.size)
+        assertTrue(urls[0].startsWith("https://thumb.wikimedia.org/"))
+    }
 }

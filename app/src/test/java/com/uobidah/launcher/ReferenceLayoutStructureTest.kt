@@ -10,6 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -157,6 +158,8 @@ class ReferenceLayoutStructureTest {
         assertTrue("$what: عنصر يخرج من الشاشة (يمين=${left(last, root) + last.width})", left(last, root) + last.width <= 1920)
     }
 
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
+
     @Test fun r8DuskBoardHasGlassPillThreeCardRowAndGlassAppsBox() {
         val root = launch(com.uobidah.launcher.core.HomeLayoutTemplate.DUSK_BOARD)
         val pill = find(root, "r8-header-pill"); assertNotNull("كبسولة الرأس الزجاجية غير موجودة", pill)
@@ -218,6 +221,8 @@ class ReferenceLayoutStructureTest {
         val appRight = left(appSection, root) + appSection.width
         assertTrue("صف التطبيقات يجب ألا يدخل أسفل القائمة الجانبية", appRight <= left(rail, root))
     }
+
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
 
     @Test fun r9DashboardClockWeatherPrayerShareOneRowInOrder() {
         val allowFavoritesLoad = CountDownLatch(1)

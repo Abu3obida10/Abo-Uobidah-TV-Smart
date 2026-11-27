@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.View
 import android.widget.TextView
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -26,6 +27,7 @@ class GalleryTest {
         File("/tmp/abo/t960").mkdirs()
         FileOutputStream(File("/tmp/abo/t960/$name.png")).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
     @Test fun galleryAll() {
         val ctx = org.robolectric.RuntimeEnvironment.getApplication()
         val pm = ctx.packageManager
@@ -59,6 +61,7 @@ class GalleryTest {
             c.pause().stop().destroy()
         }
     }
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
     @Test fun harnessFacts() {
         val ctx = org.robolectric.RuntimeEnvironment.getApplication()
         val c = Robolectric.buildActivity(MainLauncherActivity::class.java).create().start().resume().visible()

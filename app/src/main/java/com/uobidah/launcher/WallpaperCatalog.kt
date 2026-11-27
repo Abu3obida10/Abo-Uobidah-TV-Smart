@@ -12,7 +12,7 @@ object WallpaperCatalog {
     data class Category(val id: String, val title: String, val apiSource: String?, val fallbacks: List<String>)
 
     private val apiHosts = setOf("wallhaven.cc")
-    private val imageHosts = setOf("w.wallhaven.cc")
+    private val imageHosts = setOf("w.wallhaven.cc", "upload.wikimedia.org", "thumb.wikimedia.org")
     private val placeholderMarkers = listOf("your-", "example.", "placeholder")
 
     @Volatile private var cached: List<Category>? = null

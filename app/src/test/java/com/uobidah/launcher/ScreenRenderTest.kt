@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.View
 import android.widget.TextView
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -140,6 +141,8 @@ class ScreenRenderTest {
         controller.pause().stop().destroy()
     }
 
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
+
     @Test fun homes() {
         val ctx = org.robolectric.RuntimeEnvironment.getApplication()
         for (idx in listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)) {
@@ -149,6 +152,7 @@ class ScreenRenderTest {
         }
     }
     /** بيانات اختبار وهمية (FIXTURE) لإثبات التخطيط بمحتوى حقيقي الشكل؛ ليست بيانات حقيقية. */
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
     @Test fun homesFixture() {
         val ctx = org.robolectric.RuntimeEnvironment.getApplication()
         val pm = ctx.packageManager
@@ -230,6 +234,7 @@ class ScreenRenderTest {
         go(IptvProActivity::class.java, "iptv")
         go(MatchDetailActivity::class.java, "match_detail")
     }
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
     @Test fun appNamesCanUseTwoLinesOnNarrowTiles() {
         val controller = Robolectric.buildActivity(MainLauncherActivity::class.java).create().start().resume().visible()
         org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()

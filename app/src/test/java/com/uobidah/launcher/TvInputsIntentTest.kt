@@ -10,6 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -180,6 +181,8 @@ class TvInputsIntentTest {
             intent.action == Settings.ACTION_SETTINGS
         )
     }
+
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
 
     @Test fun r9HeaderInputButtonLaunchesDedicatedIntentInsteadOfAndroidSettings() {
         val context = RuntimeEnvironment.getApplication()

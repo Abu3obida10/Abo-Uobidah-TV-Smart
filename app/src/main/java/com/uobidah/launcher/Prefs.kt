@@ -187,8 +187,15 @@ class Prefs(context: Context) {
         get() = b("adhan_on", true)
         set(v) { putB("adhan_on", v) }
 
+    /** الأذان الافتراضي: islamcan.com مات (الاتصال مرفوض) فاستُبدل بتسجيل موثّق من ويكيميديا كومنز. */
+    private val legacyDeadAdhan = "https://www.islamcan.com/audio/adhan/azan2.mp3"
+    private val defaultAdhan = "https://upload.wikimedia.org/wikipedia/commons/7/7d/The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3"
     var adhanUrl: String
-        get() = s("adhan_url", "https://www.islamcan.com/audio/adhan/azan2.mp3")
+        get() {
+            val stored = s("adhan_url", "")
+            // من اختار رابطًا بنفسه يُحترم اختياره؛ الافتراضي القديم الميت يُستبدل تلقائيًا.
+            return if (stored.isBlank() || stored == legacyDeadAdhan) defaultAdhan else stored
+        }
         set(v) { putS("adhan_url", v) }
 
     var prayerMethod: Int

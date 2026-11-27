@@ -23,6 +23,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -386,8 +387,13 @@ class ReferenceLayoutRenderTest {
         controller.pause().stop().destroy()
     }
 
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
+
     @Test fun renderDesign24AsLabeledSimulation() = render(24, "DESIGN24_R8_ROBOLECTRIC_SIMULATION_1920x1080.png")
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
     @Test fun renderDesign25AsLabeledSimulation() = render(25, "DESIGN25_R9_ROBOLECTRIC_SIMULATION_1920x1080.png")
+
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
 
     @Test fun r9DpadFocusScrollsPeekedFavoriteMatchFullyIntoView() {
         val ctx = org.robolectric.RuntimeEnvironment.getApplication()

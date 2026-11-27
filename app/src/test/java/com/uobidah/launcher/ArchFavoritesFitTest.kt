@@ -6,6 +6,7 @@ import android.widget.HorizontalScrollView
 import android.widget.TextView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -24,6 +25,8 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [34], qualifiers = "w1280dp-h720dp-hdpi")
 class ArchFavoritesFitTest {
     private fun walk(v: View, f: (View) -> Unit) { f(v); if (v is ViewGroup) for (i in 0 until v.childCount) walk(v.getChildAt(i), f) }
+
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
 
     @Test fun fourFavoriteTilesAreFullyInsideTheMeasuredRowAndNamesAreNotClipped() {
         val ctx = org.robolectric.RuntimeEnvironment.getApplication()

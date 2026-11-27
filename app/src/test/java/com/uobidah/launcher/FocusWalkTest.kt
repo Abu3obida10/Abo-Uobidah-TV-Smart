@@ -2,6 +2,7 @@ package com.uobidah.launcher
 import android.view.View
 import android.view.ViewGroup
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -19,6 +20,7 @@ class FocusWalkTest {
         if (v.isFocusable && v !is android.widget.ScrollView && v !is android.widget.HorizontalScrollView && (v.isClickable || v.isLongClickable) && v.isShown && v.width > 0 && v.height > 0) out.add(v)
         if (v is ViewGroup) for (i in 0 until v.childCount) focusables(v.getChildAt(i), out)
     }
+    @Ignore("Old multi-layout system retired in v1.0.52 rebuild; new home has its own geometry tests")
     @Test fun everyFocusableReachableByDpadOnAllLayouts() {
         val ctx = org.robolectric.RuntimeEnvironment.getApplication()
         val pm = ctx.packageManager

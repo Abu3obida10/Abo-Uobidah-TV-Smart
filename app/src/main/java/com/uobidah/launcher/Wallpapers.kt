@@ -143,6 +143,7 @@ object Wallpapers {
             val url = info.optString("thumburl", info.optString("url", ""))
             val cleanUrl = url.substringBefore('?').lowercase()
             val trustedHost = url.startsWith("https://upload.wikimedia.org/", true) ||
+                url.startsWith("https://thumb.wikimedia.org/", true) ||
                 url.startsWith("https://commons.wikimedia.org/", true)
             if ((cleanUrl.endsWith(".jpg") || cleanUrl.endsWith(".jpeg") || cleanUrl.endsWith(".png") || cleanUrl.endsWith(".webp")) && trustedHost) urls.add(url)
         }

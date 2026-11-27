@@ -116,12 +116,26 @@ object CardDesigns {
                 cornerRadius = radiusPx
                 setStroke(bw, t.border)
             }
-            else -> GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(blend(Ui.withAlpha(t.cardFocus, 72), solid), solid)
-            ).apply {
-                cornerRadius = radiusPx
-                setStroke(bw, t.border)
+            else -> {
+                // الزجاجي السينمائي (الافتراضي الجديد): لمعة علوية خفيفة، عمق سفلي أغمق،
+                // حد مضيء من لون التركيز، وظل رخو يطلّ أسفل البطاقة بثلاث نقاط فتبدو مرتفعة عن الخلفية.
+                val top = blend(Ui.withAlpha(Color.WHITE, 26), solid)
+                val bottom = blend(Ui.withAlpha(Color.BLACK, 44), solid)
+                val card = GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(top, solid, bottom)
+                ).apply {
+                    cornerRadius = radiusPx
+                    setStroke(bw, blend(Ui.withAlpha(t.cardFocus, 110), solid))
+                }
+                val shadow = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(Ui.withAlpha(Color.BLACK, 96))
+                    cornerRadius = radiusPx
+                }
+                val layers = LayerDrawable(arrayOf<Drawable>(shadow, card))
+                layers.setLayerInset(1, 0, 0, 0, Ui.p(ctx, 3f))
+                layers
             }
         }
     }

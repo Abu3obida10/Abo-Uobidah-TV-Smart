@@ -14,6 +14,7 @@ class BootReceiver : BroadcastReceiver() {
             a == "com.htc.intent.action.QUICKBOOT_POWERON"
         if (!ok) return
         DefaultLauncher.ensureHomeService(context)
+        HomeWatchdogWorker.schedule(context)
         try {
             context.startForegroundService(Intent(context, DynamicIslandOverlayService::class.java))
         } catch (_: Exception) {

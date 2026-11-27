@@ -376,7 +376,7 @@ object Img {
         }
     }
 
-    fun load(context: Context, url: String, view: ImageView, reqW: Int, reqH: Int, onLoaded: (() -> Unit)? = null) {
+    fun load(context: Context, url: String, view: ImageView, reqW: Int, reqH: Int, onLoaded: (() -> Unit)? = null, onError: (() -> Unit)? = null) {
         val cacheKey = url + "|" + reqW + "x" + reqH
         // حارس التحميل في وسم مستقل: View.tag يبقى لمالك الواجهة (مثل channel-logo) ولا يُكتب فوقه.
         view.setTag(R.id.img_load_key, cacheKey)
@@ -428,7 +428,8 @@ object Img {
                     }
                 }
             } catch (_: Exception) {
-                // يظل عنصر الشعار الاحتياطي ظاهراً عند تعذّر الاتصال أو الرابط.
+                // يظل عنصر الشعار الاحتياطي ظاهراً عند تعذّر الاتصال أو الرابط، ويُعلِم المالك إن طلب ذلك.
+                if (onError != null) Net.ui { if (view.getTag(R.id.img_load_key) == cacheKey) onError() }
             }
         }
     }

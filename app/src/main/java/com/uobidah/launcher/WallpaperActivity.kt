@@ -41,7 +41,8 @@ class WallpaperActivity : BaseActivity() {
         root.background = bgGradient()
         root.setPadding(px(56f), px(32f), px(56f), px(20f))
         val clubName = ut.club?.ar ?: "الخلفيات العامة"
-        root.addView(header("🖼️ خلفيات الشاشة • $clubName"), Ui.lp(Ui.MATCH, Ui.WRAP))
+        val appVer = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "" } catch (_: Exception) { "" }
+        root.addView(header("🖼️ خلفيات الشاشة • $clubName" + (if (appVer.isNotBlank()) " • v$appVer" else "")), Ui.lp(Ui.MATCH, Ui.WRAP))
 
         // أقسام جاهزة
         val cats = LinearLayout(this)
@@ -134,11 +135,17 @@ class WallpaperActivity : BaseActivity() {
                 val cell = (convertView as? FrameLayout) ?: FrameLayout(this@WallpaperActivity).apply {
                     setPadding(px(6f), px(6f), px(6f), px(6f))
                     addView(ImageView(this@WallpaperActivity), FrameLayout.LayoutParams(Ui.MATCH, px(230f)))
+                    addView(Ui.label(this@WallpaperActivity, "✕ تعذر التحميل", 18f, ut.dim, true).apply {
+                        gravity = android.view.Gravity.CENTER
+                        visibility = View.GONE
+                    }, FrameLayout.LayoutParams(Ui.MATCH, px(230f)))
                 }
                 val iv = cell.getChildAt(0) as ImageView
+                val err = cell.getChildAt(1) as TextView
+                err.visibility = View.GONE
                 iv.scaleType = ImageView.ScaleType.CENTER_CROP
                 iv.setBackgroundColor(ut.card)
-                Img.load(this@WallpaperActivity, Wallpapers.thumb(results[position]), iv, 474, 266)
+                Img.load(this@WallpaperActivity, Wallpapers.thumb(results[position]), iv, 474, 266, onError = { err.visibility = View.VISIBLE })
                 return cell
             }
         }
@@ -212,22 +219,25 @@ class WallpaperActivity : BaseActivity() {
         }
         prefs.setWallpaperQuery(Wallpapers.scope(prefs), query)
         val requestId = ++searchRequestId
-        status.text = if (prefs.pexelsApiKey.isNotBlank()) "جاري البحث في Pexels ثم Wikimedia Commons ثم Pinterest..." else "جاري البحث في Wikimedia Commons ثم Pinterest كاحتياط..."
+        status.text = "جاري البحث في Wallhaven ثم Wikimedia Commons ثم Pinterest كاحتياط..."
         val queued = Net.submitBg {
-            var res: List<String> = emptyList()
+            var outcome = Wallpapers.SearchOutcome(emptyList(), "", "")
             try {
-                res = Wallpapers.search(query, prefs.pexelsApiKey)
+                outcome = Wallpapers.searchDetailed(query, prefs.pexelsApiKey)
             } catch (e: Exception) {
             }
+            val res = outcome.urls
+            val diag = outcome.diagnostics
+            val source = outcome.source
             Net.ui {
                 if (requestId != searchRequestId || isFinishing) return@ui
                 results.clear()
                 results.addAll(res)
                 adapter.notifyDataSetChanged()
                 if (res.isEmpty()) {
-                    status.text = "لم تظهر نتائج من المصادر المتاحة. جرّب عبارة بحث أخرى أو الصق رابط صورة مباشر."
+                    status.text = "لم تظهر نتائج. جرّب عبارة أخرى أو الصق رابط صورة مباشر." + (if (diag.isNotEmpty()) " [$diag]" else "")
                 } else {
-                    status.text = "اضغط على صورة لتعيينها خلفية  (" + res.size + " صورة)"
+                    status.text = "اضغط على صورة لتعيينها خلفية  (" + res.size + " صورة" + (if (source.isNotEmpty()) " • المصدر: $source" else "") + ")"
                     grid.requestFocus()
                 }
             }

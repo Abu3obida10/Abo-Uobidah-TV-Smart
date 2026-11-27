@@ -53,7 +53,7 @@ class MainLauncherActivity : BaseActivity() {
     private var tvPQibla: TextView? = null
     private lateinit var tvWifi: TextView
     private lateinit var pinnedRow: LinearLayout
-    private lateinit var weatherCard: LinearLayout
+    private lateinit var weatherCard: View
     private lateinit var prayerCard: LinearLayout
     private var forecastRow: LinearLayout? = null
     private var favVertical = false
@@ -3628,17 +3628,12 @@ class MainLauncherActivity : BaseActivity() {
             ellipsize = android.text.TextUtils.TruncateAt.END
             setPadding(px(18f), px(9f), px(18f), px(9f))
         }
-        auroraSurface(chip, 24f, false)
+        auroraSurface(chip, 24f, true)
         tvHeaderInfo = chip
-        val chipWrap = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.END
-            layoutDirection = View.LAYOUT_DIRECTION_LTR
-            tag = "aurora-header-info-wrap"
-        }
-        chipWrap.addView(chip, Ui.lp(Ui.WRAP, Ui.WRAP))
-        info.addView(chipWrap, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(10f), 0, 0))
-        weatherCard = chipWrap
+        val chipLp = Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(10f), 0, 0)
+        chipLp.gravity = Gravity.END
+        info.addView(chip, chipLp)
+        weatherCard = chip
         top.addView(info, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.END or Gravity.TOP))
 
         // مؤشر سرعة الشبكة (الجهة اليسرى)

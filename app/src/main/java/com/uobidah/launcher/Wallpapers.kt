@@ -105,13 +105,46 @@ object Wallpapers {
         } catch (_: Exception) { emptyList() }
     }
 
-    /** يبحث في Pexels إن وُجد مفتاح، ثم Wikimedia Commons (لا يحتاج جلسة Pinterest)، ثم Pinterest كاحتياط. */
-    fun search(query: String, pexelsKey: String = ""): List<String> {
+    /** يحلل رد Wallhaven: روابط w.wallhaven.cc الكاملة فقط (SFW). مصدر خلفيات حقيقي بجودة عالية ولا يحتاج مفتاحًا. */
+    internal fun parseWallhavenUrls(json: String): List<String> {
+        val data = JSONObject(json).optJSONArray("data") ?: return emptyList()
+        val urls = LinkedHashSet<String>()
+        for (i in 0 until data.length()) {
+            if (urls.size >= 24) break
+            val url = data.optJSONObject(i)?.optString("path", "").orEmpty()
+            val clean = url.substringBefore('?').lowercase()
+            if (url.startsWith("https://w.wallhaven.cc/full/") &&
+                (clean.endsWith(".jpg") || clean.endsWith(".jpeg") || clean.endsWith(".png"))) urls.add(url)
+        }
+        return urls.toList()
+    }
+
+    /** بحث Wallhaven (SFW فقط، بلا مفتاح). قائمة فارغة عند أي فشل ليتابع البحث في المصادر الأخرى. */
+    fun searchWallhaven(query: String): List<String> {
+        return try {
+            val url = "https://wallhaven.cc/api/v1/search?q=" + URLEncoder.encode(query, "UTF-8") +
+                "&categories=100&purity=100&sorting=relevance&per_page=24"
+            val body = String(Net.getBytes(url, 8000, maxBytes = 1024 * 1024), Charsets.UTF_8)
+            parseWallhavenUrls(body)
+        } catch (_: Exception) { emptyList() }
+    }
+
+    /** نتيجة بحث مع تشخيص لكل مصدر: العدد أو سبب الفشل، يُعرض للمستخدم في سطر الحالة. */
+    class SearchOutcome(val urls: List<String>, val source: String, val diagnostics: String)
+
+    /** بحث مفصّل: Pexels (بمفتاح) ثم Wallhaven ثم Wikimedia Commons ثم Pinterest؛ أول مصدر ينجح يوفّر النتائج. */
+    fun searchDetailed(query: String, pexelsKey: String = ""): SearchOutcome {
         val clean = query.trim().take(120)
-        if (clean.isEmpty()) return emptyList()
-        val pexels = searchPexels(pexelsKey, clean)
-        if (pexels.isNotEmpty()) return pexels
-        val q = URLEncoder.encode(clean, "UTF-8")
+        if (clean.isEmpty()) return SearchOutcome(emptyList(), "", "عبارة فارغة")
+        val notes = StringBuilder()
+        if (pexelsKey.isNotBlank()) {
+            val pexels = searchPexels(pexelsKey, clean)
+            if (pexels.isNotEmpty()) return SearchOutcome(pexels, "Pexels", "Pexels: ${pexels.size}")
+            notes.append("Pexels: 0 • ")
+        }
+        val wallhaven = searchWallhaven(clean)
+        if (wallhaven.isNotEmpty()) return SearchOutcome(wallhaven, "Wallhaven", notes.toString() + "Wallhaven: ${wallhaven.size}")
+        notes.append("Wallhaven: 0 • ")
         val commonsUrl = "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=" +
             URLEncoder.encode("filetype:bitmap $clean", "UTF-8") +
             "&gsrnamespace=6&gsrlimit=30&prop=imageinfo&iiprop=url&iiurlwidth=1600&format=json"
@@ -119,8 +152,9 @@ object Wallpapers {
             val body = String(Net.getBytes(commonsUrl, 8000, maxBytes = 3 * 1024 * 1024), Charsets.UTF_8)
             parseCommonsImageUrls(body)
         } catch (_: Exception) { emptyList() }
-        if (commons.isNotEmpty()) return commons.take(24)
-
+        if (commons.isNotEmpty()) return SearchOutcome(commons.take(24), "Wikimedia Commons", notes.toString() + "Commons: ${commons.size}")
+        notes.append("Commons: 0 • ")
+        val q = URLEncoder.encode(clean, "UTF-8")
         val seen = LinkedHashSet<String>()
         try {
             val html = String(Net.getBytes("https://www.pinterest.com/search/pins/?q=$q&rs=typed", 6000, maxBytes = 2 * 1024 * 1024), Charsets.UTF_8)
@@ -130,8 +164,11 @@ object Wallpapers {
                 if (seen.size >= 24) break
             }
         } catch (_: Exception) { }
-        return seen.toList()
+        return SearchOutcome(seen.toList(), if (seen.isEmpty()) "" else "Pinterest", notes.toString() + "Pinterest: ${seen.size}")
     }
+
+    /** يبحث في Pexels إن وُجد مفتاح، ثم Wikimedia Commons (لا يحتاج جلسة Pinterest)، ثم Pinterest كاحتياط. */
+    fun search(query: String, pexelsKey: String = ""): List<String> = searchDetailed(query, pexelsKey).urls
 
     internal fun parseCommonsImageUrls(json: String): List<String> {
         val pages = JSONObject(json).optJSONObject("query")?.optJSONObject("pages") ?: return emptyList()
@@ -150,7 +187,18 @@ object Wallpapers {
         return urls.toList()
     }
 
-    fun thumb(path: String): String = if (path.startsWith("https://") || path.startsWith("http://")) path else "https://i.pinimg.com/474x/$path"
+    /** مصغّرة العرض في الشبكة: لروابط Wallhaven الكاملة نستخدم مصغّرة th.wallhaven.cc الأخف. */
+    fun thumb(path: String): String {
+        if (path.startsWith("https://w.wallhaven.cc/full/")) {
+            val rest = path.removePrefix("https://w.wallhaven.cc/full/")
+            val parts = rest.split("/")
+            if (parts.size == 2) {
+                val file = parts[1].removePrefix("wallhaven-")
+                return "https://th.wallhaven.cc/small/${parts[0]}/$file"
+            }
+        }
+        return if (path.startsWith("https://") || path.startsWith("http://")) path else "https://i.pinimg.com/474x/$path"
+    }
     fun candidates(path: String): List<String> = if (path.startsWith("https://") || path.startsWith("http://")) listOf(path) else listOf(
         "https://i.pinimg.com/originals/$path",
         "https://i.pinimg.com/736x/$path"

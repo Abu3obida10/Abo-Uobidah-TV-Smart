@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.StateListDrawable
 import android.view.ViewOutlineProvider
 import android.graphics.drawable.Drawable
@@ -94,6 +95,7 @@ class MainLauncherActivity : BaseActivity() {
     }
 
     private fun currentSig(): String = listOf(
+        prefs.homePreset,
         prefs.themeIndex, prefs.layoutIndex, prefs.cardStyle, prefs.dockStyle, prefs.fontIndex, prefs.bgVersion, prefs.focusColor,
         prefs.showClockCard, prefs.showWeatherCard, prefs.showPrayerCard, prefs.showPinnedApps,
         prefs.showMatchFavorites, prefs.showHomeDock, prefs.showWifiButton, prefs.showHdmiButton,
@@ -150,7 +152,7 @@ class MainLauncherActivity : BaseActivity() {
                 if (prefs.showClockCard) tvTime else null,
                 if (prefs.showPrayerCard) tvPNext else null
             ).firstOrNull { it.visibility == View.VISIBLE && it.isShown }
-            if (target != null) target.requestFocus() else focusFirstVisible()
+            if (target == null || !target.requestFocus()) focusFirstVisible()
         }
     }
 
@@ -206,20 +208,23 @@ class MainLauncherActivity : BaseActivity() {
     // =====================================================================
     private fun buildUi() {
         val root = FrameLayout(this)
+        val auroraHome = prefs.homePreset == "aurora"
         val homeTemplate = com.uobidah.launcher.core.HomeLayouts.get(prefs.layoutIndex).template
         val hasCustomWallpaper = Wallpapers.activeFile(this, prefs).let { it.isFile && it.length() > 0L }
         // R8 (التخطيط 24) يفرض مشهد الغروب مهما كان الثيم أو وضع الشاشة المصمتة؛ كان اختفاؤه
         // سببه اشتراط ثيم داكن وعدم وجود ثيم نادٍ/شاشة مصمتة، إضافةً إلى مفتاح اختياري مغلق.
         // الخلفية المخصصة للمستخدم تظل أعلى أولوية ولا نستبدل اختياره.
-        val r8OwnsBackground = homeTemplate == HomeLayoutTemplate.DUSK_BOARD && !hasCustomWallpaper
-        val nightScene = !r8OwnsBackground && isProHomeLayout() && homeTemplate == HomeLayoutTemplate.CHANNELS_FIRST &&
+        // أورورا تستخدم مشهد الغروب كخلفية افتراضية حتى يختار المستخدم خلفية حقيقية.
+        val r8OwnsBackground = !auroraHome && homeTemplate == HomeLayoutTemplate.DUSK_BOARD && !hasCustomWallpaper
+        val nightScene = !auroraHome && !r8OwnsBackground && isProHomeLayout() && homeTemplate == HomeLayoutTemplate.CHANNELS_FIRST &&
             !Themes.isLight(ut) && ut.club == null && !solidScreens && !hasCustomWallpaper
-        val mosqueScene = !r8OwnsBackground && prefs.mosqueScene && !nightScene && !Themes.isLight(ut) && ut.club == null && !solidScreens && !hasCustomWallpaper
-        val duskScene = r8OwnsBackground || (prefs.duskScene &&
-            !nightScene && !mosqueScene && !Themes.isLight(ut) && ut.club == null && !solidScreens && !hasCustomWallpaper)
-        root.tag = when (homeTemplate) {
-            HomeLayoutTemplate.DUSK_BOARD -> "r8-home-root"
-            HomeLayoutTemplate.DASHBOARD -> "r9-home-root"
+        val mosqueScene = !auroraHome && !r8OwnsBackground && prefs.mosqueScene && !nightScene && !Themes.isLight(ut) && ut.club == null && !solidScreens && !hasCustomWallpaper
+        val duskScene = (auroraHome || r8OwnsBackground || prefs.duskScene) &&
+            !nightScene && !mosqueScene && !Themes.isLight(ut) && ut.club == null && !solidScreens && !hasCustomWallpaper
+        root.tag = when {
+            auroraHome -> "aurora-home-root"
+            homeTemplate == HomeLayoutTemplate.DUSK_BOARD -> "r8-home-root"
+            homeTemplate == HomeLayoutTemplate.DASHBOARD -> "r9-home-root"
             else -> "home-root"
         }
         root.background = if (nightScene) NightSceneBg() else if (mosqueScene) MosqueSceneBg() else if (duskScene) DuskSceneBg() else bgGradient()
@@ -248,6 +253,7 @@ class MainLauncherActivity : BaseActivity() {
         }
 
         val col = when {
+            auroraHome -> buildAuroraHome()
             isProHomeLayout() -> buildProHomeColumn()
             prefs.layoutIndex == 4 -> buildTvColumn()
             else -> buildClassicColumn()
@@ -3432,6 +3438,277 @@ class MainLauncherActivity : BaseActivity() {
 
     private fun openAppSearch() {
         startActivity(Intent(this, AppsActivity::class.java).putExtra("mode", "search"))
+    }
+
+    // =====================================================================
+    // واجهة أورورا: التصميم المرجعي الجديد (خلفية كاملة + حبة حالة + بطاقات زجاجية + دوك)
+    // =====================================================================
+
+    /** سطح زجاجي موحد لواجهة أورورا فوق الخلفية الكاملة، مع إطار تركيز واضح وتكبير خفيف. */
+    private fun auroraSurface(view: View, radiusDp: Float = 28f, focusableTarget: Boolean = true) {
+        val base = Ui.over(ut.card, ut.bgBottom)
+        val r = px(radiusDp).toFloat()
+        val normal = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(Ui.withAlpha(Ui.over(Ui.withAlpha(Color.WHITE, 20), base), 216), Ui.withAlpha(base, 228))
+        ).apply {
+            cornerRadius = r
+            setStroke(px(1.5f), Ui.withAlpha(ut.accent, 105))
+        }
+        val halo = Ui.round(Ui.withAlpha(ut.accent, 90), r + px(5f))
+        val focusedCard = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(Ui.over(ut.cardFocus, ut.bgBottom), base)
+        ).apply {
+            cornerRadius = r
+            setStroke(px(4f), ut.accent)
+        }
+        val focused = LayerDrawable(arrayOf(halo, focusedCard))
+        val inset = px(5f)
+        focused.setLayerInset(1, inset, inset, inset, inset)
+        view.background = StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_focused), focused)
+            addState(intArrayOf(), normal)
+        }
+        if (!focusableTarget) return
+        view.isFocusable = true
+        view.setOnFocusChangeListener { target, hasFocus ->
+            if (Motion.enabled(this)) {
+                val scale = if (hasFocus) 1.02f else 1f
+                target.animate().cancel()
+                target.animate().scaleX(scale).scaleY(scale).setDuration(100L).start()
+            } else {
+                target.animate().cancel()
+                target.scaleX = 1f
+                target.scaleY = 1f
+            }
+        }
+    }
+
+    /** زر دائري صغير داخل حبة الحالة في واجهة أورورا (رمز وظيفي صغير فقط، لا أيقونات مرسومة للتطبيقات). */
+    private fun auroraPillButton(glyph: String, desc: String, action: () -> Unit): TextView {
+        val b = Ui.label(this, glyph, 22f, ut.text, true)
+        b.gravity = Gravity.CENTER
+        b.contentDescription = desc
+        b.maxLines = 1
+        Ui.focusable(b, ut, 200f, Ui.withAlpha(ut.text, 22))
+        b.isClickable = true
+        b.setOnClickListener { action() }
+        return b
+    }
+
+    private fun auroraPillDivider(): View {
+        val d = View(this)
+        d.setBackgroundColor(Ui.withAlpha(ut.text, 46))
+        d.layoutParams = LinearLayout.LayoutParams(px(1f), px(26f)).apply {
+            setMargins(px(9f), 0, px(9f), 0)
+        }
+        return d
+    }
+
+    /** تحية حسب الساعة المحلية للمدينة المختارة. */
+    private fun auroraGreeting(): String {
+        val h = PrayerRepo.localNow(prefs).hour
+        return if (h in 5..11) "صباح الخير" else "مساء الخير"
+    }
+
+    /** بلاطة دوك أفقية: أيقونة التطبيق الحقيقية من PackageManager بجانب اسمه داخل حبة زجاجية. */
+    private fun auroraDockTile(icon: Drawable?, label: String, addTile: Boolean, onClick: () -> Unit): View {
+        val item = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(px(16f), px(9f), px(16f), px(9f))
+            contentDescription = label
+            isClickable = true
+            tag = if (addTile) "aurora-add-tile" else "aurora-app-tile"
+            setOnClickListener { onClick() }
+        }
+        auroraSurface(item, 24f)
+        val iconSize = px(44f)
+        if (icon != null) {
+            val iv = ImageView(this)
+            iv.setImageDrawable(icon)
+            iv.scaleType = ImageView.ScaleType.FIT_CENTER
+            iv.contentDescription = label
+            item.addView(iv, Ui.lp(iconSize, iconSize))
+        } else {
+            item.addView(Ui.label(this, if (addTile) "+" else "▦", 30f, ut.accent, true).apply { gravity = Gravity.CENTER }, Ui.lp(iconSize, iconSize))
+        }
+        item.addView(Ui.label(this, label, 18f, ut.text, true).apply {
+            maxLines = 1
+            maxWidth = px(200f)
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            includeFontPadding = false
+        }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, px(12f), 0, 0, 0))
+        return item
+    }
+
+    /**
+     * واجهة أورورا: خلفية كاملة، حبة حالة زجاجية (ساعة + شبكة + مدخل + بحث + تنبيهات + خلفيات + إعدادات)،
+     * تحية واسم المدينة والتاريخ الميلادي/الهجري، شريط طقس/صلاة موحد يحدّثه المؤقّت، ثلاث بطاقات زجاجية
+     * (الصلاة القادمة، أقرب مباراة بشعارات حقيقية، البث المباشر)، ودوك سفلي بأيقونات التطبيقات الحقيقية.
+     */
+    private fun buildAuroraHome(): View {
+        // الحقول التي يحدّثها المؤقّت (tick) تُنشأ قبل البطاقات حتى لا يكتب في حقول غير مهيأة
+        tvTime = Ui.label(this, "--:--", 30f, ut.text, true).apply { maxLines = 1; includeFontPadding = false }
+        tvAmPm = Ui.label(this, "", 15f, ut.accent, true).apply { maxLines = 1; includeFontPadding = false }
+        tvDate = Ui.label(this, "", 19f, ut.text).apply { maxLines = 1 }
+        tvHijri = Ui.label(this, "", 19f, ut.accent).apply { maxLines = 1 }
+        tvCity = Ui.label(this, "📍 " + prefs.cityName, 17f, ut.dim).apply { maxLines = 1 }
+        tvTemp = Ui.label(this, "--°", 20f, ut.text, true)
+        tvWDesc = Ui.label(this, "", 20f, ut.text)
+        tvWDetail = Ui.label(this, "", 15f, ut.dim)
+        tvPNext = Ui.label(this, "الصلاة القادمة", 23f, Color.parseColor("#E8C98A"), true)
+        tvPCount = Ui.label(this, "--:--:--", 34f, ut.text, true)
+
+        val col = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            clipChildren = false
+            clipToPadding = false
+            setPadding(px(40f), px(22f), px(40f), px(18f))
+            tag = "aurora-home"
+        }
+
+        // الشريط العلوي: حبة الحالة في المنتصف، المدينة والتاريخ يمينًا، سرعة الشبكة يسارًا
+        val top = FrameLayout(this).apply { clipChildren = false; tag = "aurora-top" }
+
+        val pill = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(px(18f), px(8f), px(18f), px(8f))
+            tag = "aurora-status-pill"
+        }
+        auroraSurface(pill, 30f, false)
+        val clockBox = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+        }
+        clockBox.addView(tvTime)
+        clockBox.addView(tvAmPm, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, px(5f), 0, 0, 0))
+        pill.addView(clockBox, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, px(4f), 0))
+        pill.addView(auroraPillDivider())
+        tvWifi = auroraPillButton("📶", "الشبكة") { openWifi() }
+        pill.addView(tvWifi, Ui.lpm(Ui.WRAP, px(48f), 0f, px(2f), 0, px(2f), 0))
+        pill.addView(auroraPillDivider())
+        pill.addView(auroraPillButton("▣", "مدخل التلفزيون") { openHdmi() }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
+        pill.addView(auroraPillButton("⌕", "بحث في التطبيقات") { openAppSearch() }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
+        pill.addView(auroraPillButton("♧", "مركز التنبيهات") { startActivity(Intent(this, NotificationCenterActivity::class.java)) }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
+        pill.addView(auroraPillButton("🖼", "الخلفيات") { startActivity(Intent(this, WallpaperActivity::class.java)) }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
+        pill.addView(auroraPillButton("⚙", "الإعدادات") { startActivity(Intent(this, SettingsActivity::class.java)) }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
+        top.addView(pill, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.CENTER_HORIZONTAL or Gravity.TOP))
+
+        // كتلة المدينة والتاريخ (الجهة اليمنى)
+        val info = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.END
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            clipChildren = false
+            tag = "aurora-city-block"
+        }
+        info.addView(Ui.label(this, auroraGreeting(), 21f, ut.text, true).apply { tag = "aurora-greeting"; maxLines = 1 })
+        val big = Ui.label(this, prefs.cityName, 60f, ut.text, true).apply { tag = "aurora-city"; maxLines = 1 }
+        tvBigCity = big
+        info.addView(big, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(2f), 0, 0))
+        val dateRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutDirection = View.LAYOUT_DIRECTION_RTL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        dateRow.addView(tvDate)
+        dateRow.addView(Ui.label(this, "  ·  ", 19f, ut.dim))
+        dateRow.addView(tvHijri)
+        info.addView(dateRow, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(4f), 0, 0))
+        val chip = Ui.label(this, "", 19f, ut.text, true).apply {
+            tag = "aurora-header-info"
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            setPadding(px(18f), px(9f), px(18f), px(9f))
+        }
+        auroraSurface(chip, 24f, false)
+        tvHeaderInfo = chip
+        val chipWrap = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            tag = "aurora-header-info-wrap"
+        }
+        chipWrap.addView(chip, Ui.lp(Ui.WRAP, Ui.WRAP))
+        info.addView(chipWrap, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(10f), 0, 0))
+        weatherCard = chipWrap
+        top.addView(info, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.END or Gravity.TOP))
+
+        // مؤشر سرعة الشبكة (الجهة اليسرى)
+        val netChip = Ui.label(this, "", 16f, ut.dim, true).apply {
+            tag = "aurora-net-speed"
+            setPadding(px(14f), px(8f), px(14f), px(8f))
+        }
+        auroraSurface(netChip, 20f, false)
+        tvNetSpeed = netChip
+        top.addView(netChip, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.START or Gravity.TOP))
+
+        col.addView(top, Ui.lp(Ui.MATCH, Ui.WRAP))
+        col.addView(View(this), Ui.lp(1, 0, 1f))
+
+        // صف البطاقات الزجاجية: الصلاة، المباراة (أوسع)، البث المباشر
+        val cards = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            clipChildren = false
+            clipToPadding = false
+            tag = "aurora-cards-row"
+        }
+        val prayerSpot = buildUpcomingPrayerSpotlight()
+        prayerCard = prayerSpot as LinearLayout
+        val matchSpot = buildSingleMatchSpotlightCard()
+        val liveCard = buildLiveTvCard()
+        auroraSurface(prayerSpot)
+        auroraSurface(matchSpot)
+        auroraSurface(liveCard)
+        val cardH = px(220f)
+        cards.addView(prayerSpot, Ui.lpm(0, cardH, 1f, 0, 0, px(9f), 0))
+        cards.addView(matchSpot, Ui.lpm(0, cardH, 1.25f, 0, 0, px(9f), 0))
+        cards.addView(liveCard, Ui.lpm(0, cardH, 1f, 0, 0, 0, 0))
+        col.addView(cards, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, px(12f), 0, px(14f)))
+
+        // الدوك السفلي: تطبيقات مفضلة بأيقوناتها الحقيقية + بلاطة إضافة
+        val dockFrame = FrameLayout(this).apply { clipChildren = false; tag = "aurora-dock-frame" }
+        val scroll = HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            clipChildren = false
+            clipToPadding = false
+            tag = "aurora-dock-scroll"
+        }
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            gravity = Gravity.CENTER_VERTICAL
+            clipChildren = false
+            tag = "aurora-dock"
+        }
+        val pm = packageManager
+        for (fav in prefs.favorites().visible()) {
+            val pkg = fav.pkg
+            val installed = try { pm.getApplicationInfo(pkg, 0); true } catch (_: Exception) { false }
+            if (!installed) continue
+            val icon = AppUtil.cachedIcon(pm, pkg, true)
+            val label = fav.displayName(AppUtil.label(pm, pkg))
+            row.addView(auroraDockTile(icon, label, false) {
+                val launch = AppUtil.launchIntent(pm, pkg)
+                if (launch == null) toast("لا توجد واجهة تشغيل لهذا التطبيق")
+                else try { startActivity(launch) } catch (_: Exception) { toast("تعذر فتح التطبيق") }
+            }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, px(8f), 0))
+        }
+        row.addView(auroraDockTile(null, "إضافة", true) {
+            startActivity(Intent(this, AppsActivity::class.java).putExtra("mode", "pin"))
+        })
+        scroll.addView(row, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP))
+        dockFrame.addView(scroll, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.CENTER))
+        col.addView(dockFrame, Ui.lp(Ui.MATCH, Ui.WRAP))
+        return col
     }
 
     /** اسم الظهر يتحول إلى الجمعة حسب التاريخ المحلي للمدينة المختارة. */

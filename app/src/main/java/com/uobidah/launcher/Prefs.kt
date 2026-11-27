@@ -113,6 +113,11 @@ class Prefs(context: Context) {
         get() = i("layout", 4)
         set(v) { putI("layout", v) }
 
+    /** قالب الرئيسية: aurora = واجهة أورورا الجديدة (الافتراضي)، legacy = قوالب التخطيطات القديمة. */
+    var homePreset: String
+        get() = s("home_preset", "aurora")
+        set(v) { putS("home_preset", v.trim().take(24)) }
+
     /** ترحيل لمرة واحدة إلى الواجهة التلفزيونية الاحترافية مع الاحتفاظ بقائمة التطبيقات المحفوظة. */
     var proHomeDesignV1: Boolean
         get() = b("pro_home_design_v1", false)

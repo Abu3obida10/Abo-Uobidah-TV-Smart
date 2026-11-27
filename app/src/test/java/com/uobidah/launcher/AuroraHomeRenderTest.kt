@@ -8,6 +8,7 @@ import android.widget.TextView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -23,6 +24,16 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [34])
 class AuroraHomeRenderTest {
+
+    @Before fun initWorkManager() {
+        // HomeWatchdogWorker.schedule يعمل في onCreate؛ WorkManager غير مهيأ افتراضيًا في بيئة Robolectric
+        val ctx = org.robolectric.RuntimeEnvironment.getApplication()
+        try {
+            androidx.work.WorkManager.initialize(ctx, androidx.work.Configuration.Builder().build())
+        } catch (_: IllegalStateException) {
+            // مهيأ مسبقًا في اختبار سابق
+        }
+    }
 
     private fun findTag(v: View, tag: String): View? {
         if (v.tag == tag) return v

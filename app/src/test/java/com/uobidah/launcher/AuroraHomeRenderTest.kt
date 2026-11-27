@@ -44,13 +44,14 @@ class AuroraHomeRenderTest {
         return null
     }
 
+    private val overflowViolations = mutableListOf<String>()
+
     private fun assertInsideParent(v: View, path: String = "") {
         val p = v.parent as? View
         if (p != null) {
-            assertTrue("$path/${v.tag}: top ${v.top} < 0", v.top >= -1)
-            assertTrue("$path/${v.tag}: left ${v.left} < 0", v.left >= -1)
-            assertTrue("$path/${v.tag}: bottom ${v.bottom} > parent height ${p.height}", v.bottom <= p.height + 1)
-            assertTrue("$path/${v.tag}: right ${v.right} > parent width ${p.width}", v.right <= p.width + 1)
+            if (v.top < -1 || v.left < -1 || v.bottom > p.height + 1 || v.right > p.width + 1) {
+                overflowViolations.add("$path/${v.tag} [${v.left},${v.top} ${v.right}x${v.bottom}] in parent ${p.tag} [${p.width}x${p.height}]")
+            }
         }
         if (v is ViewGroup) for (i in 0 until v.childCount) assertInsideParent(v.getChildAt(i), "$path/${v.tag}")
     }
@@ -108,7 +109,9 @@ class AuroraHomeRenderTest {
         assertEquals("cards row must hold exactly 3 cards", 3, (cards as ViewGroup).childCount)
         overlapFree(cards as ViewGroup, "cards")
         overlapFree(dock as ViewGroup, "dock")
+        overflowViolations.clear()
         assertInsideParent(v)
+        assertTrue("overflow:\n" + overflowViolations.joinToString("\n"), overflowViolations.isEmpty())
         assertTextFits(v)
         controller.pause().stop().destroy()
     }

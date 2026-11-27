@@ -3634,7 +3634,7 @@ class MainLauncherActivity : BaseActivity() {
         chipLp.gravity = Gravity.END
         info.addView(chip, chipLp)
         weatherCard = chip
-        top.addView(info, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.END or Gravity.TOP))
+        top.addView(info, FrameLayout.LayoutParams(Ui.WRAP, Ui.MATCH, Gravity.END or Gravity.TOP))
 
         // مؤشر سرعة الشبكة (الجهة اليسرى)
         val netChip = Ui.label(this, "", 16f, ut.dim, true).apply {
@@ -3645,7 +3645,7 @@ class MainLauncherActivity : BaseActivity() {
         tvNetSpeed = netChip
         top.addView(netChip, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.START or Gravity.TOP))
 
-        col.addView(top, Ui.lp(Ui.MATCH, Ui.WRAP))
+        col.addView(top, Ui.lp(Ui.MATCH, px(200f)))
         col.addView(View(this), Ui.lp(1, 0, 1f))
 
         // صف البطاقات الزجاجية: الصلاة، المباراة (أوسع)، البث المباشر

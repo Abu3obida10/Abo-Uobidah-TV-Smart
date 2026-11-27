@@ -18,6 +18,7 @@ object MatchProviders {
     private val feedCacheLock = Any()
 
     private val labels = linkedMapOf(
+        "fotmob" to "FotMob (مصدر رئيسي سريع)",
         "ysscores" to "YSscores / يلا شووت (مباريات الأندية المفضلة)",
         "sofascore" to "SofaScore (واجهة عامة)",
         "livescorefootball" to "LiveScoreFootball",
@@ -32,11 +33,11 @@ object MatchProviders {
     fun label(id: String): String = labels[id] ?: "مصدر غير معروف"
 
     fun ordered(prefs: Prefs): List<String> {
-        val selected = prefs.matchProviderId.takeIf { labels.containsKey(it) } ?: "livescorefootball"
-        val order = listOf(selected, "ysscores", "sofascore", "espn", "footylive", "arabfootball", "livescorefootball", "livescoreswebapp", "flashscore", "thesportsdb").distinct()
+        val selected = prefs.matchProviderId.takeIf { labels.containsKey(it) } ?: "fotmob"
+        val order = listOf(selected, "fotmob", "espn", "ysscores", "sofascore", "footylive", "arabfootball", "livescorefootball", "livescoreswebapp", "flashscore", "thesportsdb").distinct()
         return order.filter { id ->
             when (id) {
-                "ysscores", "livescorefootball", "thesportsdb", "espn" -> true
+                "fotmob", "ysscores", "livescorefootball", "thesportsdb", "espn" -> true
                 "sofascore" -> prefs.matchMultiSource
                 "arabfootball" -> prefs.arabFootballBaseUrl.isNotBlank()
                 "footylive" -> prefs.footyLiveBaseUrl.isNotBlank()
@@ -61,6 +62,7 @@ object MatchProviders {
             if (hit != null && now - hit.first in 0..25_000L) return hit.second
         }
         val fresh = when (provider) {
+            "fotmob" -> FotMobProvider.fixtures()
             "livescorefootball" -> fetchLiveScoreFootball()
             "footylive" -> fetchFootyLive(prefs.footyLiveBaseUrl)
             "arabfootball" -> fetchArabFootball(prefs.arabFootballBaseUrl)

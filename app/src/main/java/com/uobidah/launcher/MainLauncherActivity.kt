@@ -142,6 +142,7 @@ class MainLauncherActivity : BaseActivity() {
         sig = currentSig()
         cityKey = currentCityKey()
         HomeWatchdogWorker.schedule(this)
+        MatchRefreshWorker.schedule(this)
         buildUi()
         renderWeatherCache()
         firstRunSetup()
@@ -885,7 +886,7 @@ class MainLauncherActivity : BaseActivity() {
             tag = "r8-prayer-card"
         }
         applyProSurface(box, 1)
-        box.addView(buildPrayerArtwork(), Ui.lpm(Ui.MATCH, px(76f), 0f, 0, 0, 0, px(4f)))
+        box.addView(buildPrayerArtwork(), Ui.lpm(Ui.MATCH, px(64f), 0f, 0, 0, 0, px(4f)))
         box.addView(Ui.label(this, "الصلاة القادمة", 20f, ut.text, true).apply {
             gravity = Gravity.CENTER
             maxLines = 1
@@ -3663,7 +3664,7 @@ class MainLauncherActivity : BaseActivity() {
         auroraSurface(prayerSpot)
         auroraSurface(matchSpot)
         auroraSurface(liveCard)
-        val cardH = px(220f)
+        val cardH = px(236f)
         cards.addView(prayerSpot, Ui.lpm(0, cardH, 1f, 0, 0, px(9f), 0))
         cards.addView(matchSpot, Ui.lpm(0, cardH, 1.25f, 0, 0, px(9f), 0))
         cards.addView(liveCard, Ui.lpm(0, cardH, 1f, 0, 0, 0, 0))

@@ -15,6 +15,7 @@ class BootReceiver : BroadcastReceiver() {
         if (!ok) return
         DefaultLauncher.ensureHomeService(context)
         HomeWatchdogWorker.schedule(context)
+        MatchRefreshWorker.schedule(context)
         try {
             context.startForegroundService(Intent(context, DynamicIslandOverlayService::class.java))
         } catch (_: Exception) {

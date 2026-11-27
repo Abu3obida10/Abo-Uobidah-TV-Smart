@@ -376,7 +376,7 @@ object Img {
         }
     }
 
-    fun load(context: Context, url: String, view: ImageView, reqW: Int, reqH: Int, onLoaded: (() -> Unit)? = null, onError: (() -> Unit)? = null) {
+    fun load(context: Context, url: String, view: ImageView, reqW: Int, reqH: Int, onError: (() -> Unit)? = null, onLoaded: (() -> Unit)? = null) {
         val cacheKey = url + "|" + reqW + "x" + reqH
         // حارس التحميل في وسم مستقل: View.tag يبقى لمالك الواجهة (مثل channel-logo) ولا يُكتب فوقه.
         view.setTag(R.id.img_load_key, cacheKey)

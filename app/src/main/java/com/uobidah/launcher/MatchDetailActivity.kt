@@ -91,6 +91,7 @@ class MatchDetailActivity : BaseActivity() {
     private var storedLineup: List<LineupPlayer> = emptyList()
     private var storedLineupInfo: SofaScoreLineupData? = null
     private var storedLineupSource = "TheSportsDB"
+    private var storedPitch: List<FotMobProvider.PitchPlayer> = emptyList()
     private var storedTimeline: List<TimelineEvent> = emptyList()
     private var storedSource = "TheSportsDB"
 
@@ -342,11 +343,21 @@ class MatchDetailActivity : BaseActivity() {
                 chosenAwayScore = null
             }
 
+            // FotMob أولاً عندما يكون مصدر البطاقة: تشكيلة مؤكدة بإحداثيات ملعب + أحداث.
+            val fotmobFacts = if (source == FotMobProvider.SOURCE_ID) {
+                try { FotMobProvider.matchFacts(id) } catch (_: Exception) { null }
+            } else null
+            var lineup: List<LineupPlayer> = fotmobFacts?.players.orEmpty().map {
+                LineupPlayer(it.name, "", it.home, it.sub, it.shirt)
+            }
+            var lineupLabel = if (fotmobFacts != null) "FotMob" else "TheSportsDB"
             val sofaLineupInfo = if (sofaEventId.isNotBlank()) {
                 try { SofaScoreProvider.lineups(sofaEventId) } catch (_: Exception) { null }
             } else null
-            var lineup: List<LineupPlayer> = sofaLineupInfo?.players.orEmpty()
-            var lineupLabel = if (sofaLineupInfo != null) "SofaScore" else "TheSportsDB"
+            if (lineup.isEmpty()) {
+                lineup = sofaLineupInfo?.players.orEmpty()
+                if (sofaLineupInfo != null) lineupLabel = "SofaScore"
+            }
             // TheSportsDB is a fallback source, but does not communicate official/confirmed status.
             if (lineup.isEmpty() && tsdbId.isNotBlank()) {
                 lineup = try { MatchRepo.lineup(tsdbId) } catch (_: Exception) { emptyList() }
@@ -356,6 +367,9 @@ class MatchDetailActivity : BaseActivity() {
             // Prefer the strict same-fixture SofaScore incident feed, then use the
             // original provider as a fallback. Never merge feeds from different matches.
             val timelineCandidates = ArrayList<Pair<String, List<TimelineEvent>>>()
+            if (fotmobFacts != null && fotmobFacts.timeline.isNotEmpty()) {
+                timelineCandidates.add("FotMob" to fotmobFacts.timeline)
+            }
             if (sofaEventId.isNotBlank()) {
                 val events = try { SofaScoreProvider.incidents(sofaEventId) } catch (_: Exception) { emptyList() }
                 if (events.isNotEmpty()) timelineCandidates.add("SofaScore" to events)
@@ -423,8 +437,11 @@ class MatchDetailActivity : BaseActivity() {
                     status.text = base + "\n" + (timelineWarning.ifBlank { "لم تتوفر أحداث إضافية مكتملة وموثقة لهذه المباراة. الحالة والنتيجة أعلاه من المصدر المذكور فقط." })
                 } else {
                     storedLineup = lineup
-                    storedLineupInfo = sofaLineupInfo
+                    storedLineupInfo = sofaLineupInfo ?: fotmobFacts?.let {
+                        SofaScoreLineupData(id, true, it.homeFormation, it.awayFormation, lineup)
+                    }
                     storedLineupSource = lineupLabel
+                    storedPitch = fotmobFacts?.players.orEmpty()
                     storedTimeline = timeline
                     storedSource = when {
                         selectedTimelineSource == "SofaScore" -> "SofaScore (تطابق الفريقين والموعد)"
@@ -660,6 +677,10 @@ class MatchDetailActivity : BaseActivity() {
                 null -> "📋 قائمة اللاعبين — حالة الاعتماد غير موضحة من المصدر"
             }
             body.addView(Ui.label(this, lineupHeading, if (phoneLayout) 19f else 34f, ut.accent, true), Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(18f), 0, px(8f)))
+            val pitchStarters = storedPitch.filter { !it.sub }
+            if (pitchStarters.isNotEmpty()) {
+                body.addView(pitchView(pitchStarters), Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, 0, 0, px(14f)))
+            }
             val row = LinearLayout(this)
             row.orientation = LinearLayout.HORIZONTAL
             row.addView(lineupColumn(home, lineupInfo?.homeFormation.orEmpty(), lineup.filter { it.home }), Ui.lpm(0, Ui.WRAP, 1f, 0, 0, px(16f), 0))
@@ -697,6 +718,49 @@ class MatchDetailActivity : BaseActivity() {
             c.addView(Ui.label(this, subs.joinToString("\n") { playerText(it) }, 24f, ut.text), Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(5f), 0, 0))
         }
         return c
+    }
+
+    /** ملعب تفاعلي بسيط: مواقع اللاعبين الحقيقية (FotMob verticalLayout) على أرضية خضراء. */
+    private fun pitchView(players: List<FotMobProvider.PitchPlayer>): View {
+        val wrap = FrameLayout(this)
+        val g = android.graphics.drawable.GradientDrawable(
+            android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(android.graphics.Color.parseColor("#166534"), android.graphics.Color.parseColor("#052E16"))
+        )
+        g.cornerRadius = px(22f).toFloat()
+        g.setStroke(px(2f), android.graphics.Color.argb(70, 255, 255, 255))
+        wrap.background = g
+        wrap.clipChildren = false
+        val mid = View(this)
+        mid.setBackgroundColor(android.graphics.Color.argb(70, 255, 255, 255))
+        wrap.addView(mid, FrameLayout.LayoutParams(px(2f), Ui.MATCH, Gravity.CENTER_HORIZONTAL or Gravity.TOP))
+        wrap.post {
+            val w = wrap.width
+            val h = wrap.height
+            if (w == 0 || h == 0) return@post
+            val chipW = px(120f)
+            val chipH = px(46f)
+            for (p in players) {
+                val chip = Ui.label(this, (if (p.shirt.isNotBlank()) p.shirt + "  " else "") + p.name.substringAfterLast(' '), 15f,
+                    android.graphics.Color.WHITE, true)
+                chip.gravity = Gravity.CENTER
+                chip.maxLines = 1
+                chip.ellipsize = android.text.TextUtils.TruncateAt.END
+                chip.setShadowLayer(6f, 0f, 2f, android.graphics.Color.BLACK)
+                val bg = android.graphics.drawable.GradientDrawable()
+                bg.cornerRadius = px(14f).toFloat()
+                bg.setColor(android.graphics.Color.argb(165, 10, 20, 14))
+                bg.setStroke(px(2f), if (p.home) ut.accent else android.graphics.Color.parseColor("#93C5FD"))
+                chip.background = bg
+                val lp = FrameLayout.LayoutParams(chipW, chipH, Gravity.TOP or Gravity.START)
+                lp.leftMargin = (p.x * w - chipW / 2f).toInt().coerceIn(0, (w - chipW).coerceAtLeast(0))
+                lp.topMargin = (p.y * h - chipH / 2f).toInt().coerceIn(0, (h - chipH).coerceAtLeast(0))
+                wrap.addView(chip, lp)
+            }
+        }
+        val lp = LinearLayout.LayoutParams(Ui.MATCH, px(430f))
+        wrap.layoutParams = lp
+        return wrap
     }
 
     private fun playerText(p: LineupPlayer): String {

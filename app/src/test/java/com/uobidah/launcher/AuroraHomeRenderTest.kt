@@ -35,6 +35,8 @@ class AuroraHomeRenderTest {
         }
     }
 
+    private fun v0(v: MainLauncherActivity) = v.window.decorView
+
     private fun findTag(v: View, tag: String): View? {
         if (v.tag == tag) return v
         if (v is ViewGroup) for (i in 0 until v.childCount) {
@@ -81,9 +83,21 @@ class AuroraHomeRenderTest {
         }
     }
 
-    private fun renderAndCheck(w: Int, h: Int) {
+    private fun renderAndCheck(w: Int, h: Int, density: Float = 1f) {
+        val dm = org.robolectric.RuntimeEnvironment.getApplication().resources.displayMetrics
+        val oldD = dm.density; val oldSd = dm.scaledDensity; val oldDpi = dm.densityDpi
+        val oldW = dm.widthPixels; val oldH = dm.heightPixels
+        dm.density = density; dm.scaledDensity = density; dm.densityDpi = (160 * density).toInt()
+        dm.widthPixels = w; dm.heightPixels = h
+        try {
         val controller = Robolectric.buildActivity(MainLauncherActivity::class.java).create().start().resume().visible()
         org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        // بطاقة المباراة تُملأ على خيط خلفي (Net.bg): انتظر البطاقة أو حالة الفراغ حتى تكون الهندسة حتمية
+        val waitUntil = System.currentTimeMillis() + 4000
+        while (findTag(v0(v = controller.get()), "r8-featured-match") == null && findTag(v0(controller.get()), "r8-featured-empty") == null && System.currentTimeMillis() < waitUntil) {
+            Thread.sleep(40)
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        }
         val a = controller.get()
         val v = a.window.decorView
         v.measure(
@@ -114,6 +128,10 @@ class AuroraHomeRenderTest {
         assertTrue("overflow:\n" + overflowViolations.joinToString("\n"), overflowViolations.isEmpty())
         assertTextFits(v)
         controller.pause().stop().destroy()
+        } finally {
+            dm.density = oldD; dm.scaledDensity = oldSd; dm.densityDpi = oldDpi
+            dm.widthPixels = oldW; dm.heightPixels = oldH
+        }
     }
 
     /** مقاس جهاز المستخدم الفعلي من لقطات الشاشة المرسلة. */
@@ -122,4 +140,10 @@ class AuroraHomeRenderTest {
     @Test fun auroraAt1080p() = renderAndCheck(1920, 1080)
 
     @Test fun auroraAt800p() = renderAndCheck(1280, 800)
+
+    /** تلفاز المستخدم JVC: ‏1920x1080 بكثافة tvdpi ‏(213dpi) — هدف الأداء الأساسي لكل إصدار. */
+    @Test fun auroraAtHisJvcTv() = renderAndCheck(1920, 1080, 1.33125f)
+
+    /** جهاز يبلّغ كثافة xhdpi على لوحة 1080p: سقف مقياس أورورا يمنع فيض الأقسام خارج الشاشة. */
+    @Test fun auroraAtMisreportedXhdpiTv() = renderAndCheck(1920, 1080, 2f)
 }

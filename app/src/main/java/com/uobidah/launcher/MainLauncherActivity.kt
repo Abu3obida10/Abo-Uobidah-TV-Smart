@@ -774,22 +774,22 @@ class MainLauncherActivity : BaseActivity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_VERTICAL
             layoutDirection = View.LAYOUT_DIRECTION_RTL
-            setPadding(px(24f), px(20f), px(24f), px(20f))
+            setPadding(apx(24f), apx(20f), apx(24f), apx(20f))
             contentDescription = "البث المباشر"
             tag = "r8-live-card"
         }
-        val glyph = Ui.label(this, "▣", 62f, ut.accent, true).apply {
+        val glyph = Ui.label(this, "▣", asp(62f), ut.accent, true).apply {
             gravity = Gravity.CENTER
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
                 setColor(Ui.withAlpha(ut.accent, 32))
-                setStroke(px(2f), Ui.withAlpha(ut.accent, 110))
+                setStroke(apx(2f), Ui.withAlpha(ut.accent, 110))
             }
         }
-        card.addView(glyph, Ui.lpm(px(98f), px(98f), 0f, 0, 0, 0, px(10f)))
-        card.addView(Ui.label(this, "● بث مباشر", 22f, ut.accent, true), Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, 0, px(8f)))
-        card.addView(Ui.label(this, "القنوات والقوائم", 31f, ut.text, true), Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, 0, px(8f)))
-        card.addView(Ui.label(this, "اضغط OK للمشاهدة", 19f, ut.text))
+        card.addView(glyph, Ui.lpm(apx(98f), apx(98f), 0f, 0, 0, 0, apx(10f)))
+        card.addView(Ui.label(this, "● بث مباشر", asp(22f), ut.accent, true), Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, 0, apx(8f)))
+        card.addView(Ui.label(this, "القنوات والقوائم", asp(31f), ut.text, true), Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, 0, apx(8f)))
+        card.addView(Ui.label(this, "اضغط OK للمشاهدة", asp(19f), ut.text))
         applyProSurface(card, 0)
         card.setOnClickListener {
             try { startActivity(Intent(this, IptvProActivity::class.java)) } catch (_: Exception) { toast("تعذر فتح البث المباشر") }
@@ -798,26 +798,26 @@ class MainLauncherActivity : BaseActivity() {
     }
 
     /** R8: بطاقة واحدة فقط؛ تختار المباشرة أولًا ثم أقرب قادمة ثم أحدث منتهية من الأندية التي اختارها المستخدم. */
-    private fun buildSingleMatchSpotlightCard(): View {
+    private fun buildSingleMatchSpotlightCard(slim: Boolean = false): View {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutDirection = View.LAYOUT_DIRECTION_RTL
-            setPadding(px(14f), px(12f), px(14f), px(12f))
+            setPadding(apx(14f), apx(12f), apx(14f), apx(12f))
             clipChildren = false
             clipToPadding = false
             tag = "r8-single-match-card"
         }
         applyProSurface(box, 0)
         val heading = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-        heading.addView(Ui.label(this, "⚽ مباراة واحدة", 25f, ut.text, true), Ui.lp(0, Ui.WRAP, 1f))
-        heading.addView(Ui.button(this, ut, "عرض الكل", 15f) { startActivity(Intent(this, MatchesActivity::class.java)) })
-        box.addView(heading, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, 0, 0, px(8f)))
+        heading.addView(Ui.label(this, "⚽ مباراة واحدة", asp(25f), ut.text, true), Ui.lp(0, Ui.WRAP, 1f))
+        heading.addView(Ui.button(this, ut, "عرض الكل", asp(15f)) { startActivity(Intent(this, MatchesActivity::class.java)) })
+        if (!slim) box.addView(heading, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, 0, 0, apx(8f)))
         val slot = FrameLayout(this).apply { tag = "r8-match-slot" }
-        slot.addView(Ui.label(this, "جاري تحميل أقرب مباراة للأندية المفضلة…", 18f, ut.dim).apply { gravity = Gravity.CENTER },
+        slot.addView(Ui.label(this, "جاري تحميل أقرب مباراة للأندية المفضلة…", asp(18f), ut.dim).apply { gravity = Gravity.CENTER },
             FrameLayout.LayoutParams(Ui.MATCH, Ui.MATCH))
         box.addView(slot, Ui.lp(Ui.MATCH, 0, 1f))
-        val footer = Ui.label(this, "الأهلي  •  ريال مدريد  •  مانشستر يونايتد", 14f, ut.dim).apply { gravity = Gravity.CENTER; maxLines = 1 }
-        box.addView(footer, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, px(5f), 0, 0))
+        val footer = Ui.label(this, "الأهلي  •  ريال مدريد  •  مانشستر يونايتد", asp(14f), ut.dim).apply { gravity = Gravity.CENTER; maxLines = 1 }
+        if (!slim) box.addView(footer, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, apx(5f), 0, 0))
         Net.bg {
             val result = try {
                 val selectedIds = prefs.matchFavoriteTeams.toSet()
@@ -840,11 +840,11 @@ class MainLauncherActivity : BaseActivity() {
             Net.ui {
                 slot.removeAllViews()
                 if (result == null) {
-                    val empty = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER }
-                    empty.addView(Ui.label(this, "لا توجد مباراة مؤكدة حاليًا", 20f, ut.dim, true).apply { gravity = Gravity.CENTER })
-                    empty.addView(Ui.button(this, ut, "إعداد الأندية المفضلة", 16f) {
+                    val empty = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER; tag = "r8-featured-empty" }
+                    empty.addView(Ui.label(this, "لا توجد مباراة مؤكدة حاليًا", asp(20f), ut.dim, true).apply { gravity = Gravity.CENTER })
+                    empty.addView(Ui.button(this, ut, "إعداد الأندية المفضلة", asp(16f)) {
                         startActivity(Intent(this, MatchPreferencesActivity::class.java))
-                    }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(8f), 0, 0))
+                    }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, apx(8f), 0, 0))
                     slot.addView(empty, FrameLayout.LayoutParams(Ui.MATCH, Ui.MATCH))
                 } else {
                     val (team, raw) = result
@@ -880,14 +880,14 @@ class MainLauncherActivity : BaseActivity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             layoutDirection = View.LAYOUT_DIRECTION_RTL
-            setPadding(px(12f), px(10f), px(12f), px(10f))
+            setPadding(apx(12f), apx(10f), apx(12f), apx(10f))
             clipChildren = false
             clipToPadding = false
             tag = "r8-prayer-card"
         }
         applyProSurface(box, 1)
-        box.addView(buildPrayerArtwork(), Ui.lpm(Ui.MATCH, px(64f), 0f, 0, 0, 0, px(4f)))
-        box.addView(Ui.label(this, "الصلاة القادمة", 20f, ut.text, true).apply {
+        box.addView(buildPrayerArtwork(), Ui.lpm(Ui.MATCH, apx(52f), 0f, 0, 0, 0, apx(4f)))
+        box.addView(Ui.label(this, "الصلاة القادمة", asp(20f), ut.text, true).apply {
             gravity = Gravity.CENTER
             maxLines = 1
         }, Ui.lp(Ui.MATCH, Ui.WRAP))
@@ -896,17 +896,17 @@ class MainLauncherActivity : BaseActivity() {
         // من بطاقة الجدول الكبيرة إلى بطاقة R8 المصغّرة كي لا تظهر مواقيت قديمة أو ثابتة.
         (tvPNext.parent as? ViewGroup)?.removeView(tvPNext)
         (tvPCount.parent as? ViewGroup)?.removeView(tvPCount)
-        tvPNext.textSize = 23f
+        tvPNext.textSize = asp(23f)
         tvPNext.setTextColor(Color.parseColor("#E8C98A"))
         tvPNext.gravity = Gravity.CENTER
         tvPNext.maxLines = 1
-        tvPCount.textSize = 34f
+        tvPCount.textSize = asp(31f)
         tvPCount.gravity = Gravity.CENTER
-        box.addView(tvPNext, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, px(2f), 0, 0))
-        box.addView(tvPCount, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, px(1f), 0, 0))
-        box.addView(Ui.button(this, ut, "مواقيت اليوم والقبلة", 15f) {
+        box.addView(tvPNext, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, apx(2f), 0, 0))
+        box.addView(tvPCount, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, apx(1f), 0, 0))
+        box.addView(Ui.button(this, ut, "مواقيت اليوم والقبلة", asp(15f)) {
             startActivity(Intent(this, PrayerSettingsActivity::class.java))
-        }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(4f), 0, 0))
+        }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, apx(4f), 0, 0))
         box.setOnClickListener { startActivity(Intent(this, PrayerSettingsActivity::class.java)) }
         box.contentDescription = "بطاقة الصلاة القادمة والوقت المتبقي للأذان"
         return box
@@ -3488,7 +3488,7 @@ class MainLauncherActivity : BaseActivity() {
 
     /** زر دائري صغير داخل حبة الحالة في واجهة أورورا (رمز وظيفي صغير فقط، لا أيقونات مرسومة للتطبيقات). */
     private fun auroraPillButton(glyph: String, desc: String, action: () -> Unit): TextView {
-        val b = Ui.label(this, glyph, 22f, ut.text, true)
+        val b = Ui.label(this, glyph, asp(22f), ut.text, true)
         b.gravity = Gravity.CENTER
         b.contentDescription = desc
         b.maxLines = 1
@@ -3501,8 +3501,8 @@ class MainLauncherActivity : BaseActivity() {
     private fun auroraPillDivider(): View {
         val d = View(this)
         d.setBackgroundColor(Ui.withAlpha(ut.text, 46))
-        d.layoutParams = LinearLayout.LayoutParams(px(1f), px(26f)).apply {
-            setMargins(px(9f), 0, px(9f), 0)
+        d.layoutParams = LinearLayout.LayoutParams(apx(1f), apx(26f)).apply {
+            setMargins(apx(9f), 0, apx(9f), 0)
         }
         return d
     }
@@ -3519,14 +3519,14 @@ class MainLauncherActivity : BaseActivity() {
             orientation = LinearLayout.HORIZONTAL
             layoutDirection = View.LAYOUT_DIRECTION_LTR
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(px(16f), px(9f), px(16f), px(9f))
+            setPadding(apx(16f), apx(9f), apx(16f), apx(9f))
             contentDescription = label
             isClickable = true
             tag = if (addTile) "aurora-add-tile" else "aurora-app-tile"
             setOnClickListener { onClick() }
         }
         auroraSurface(item, 24f)
-        val iconSize = px(44f)
+        val iconSize = apx(44f)
         if (icon != null) {
             val iv = ImageView(this)
             iv.setImageDrawable(icon)
@@ -3534,14 +3534,14 @@ class MainLauncherActivity : BaseActivity() {
             iv.contentDescription = label
             item.addView(iv, Ui.lp(iconSize, iconSize))
         } else {
-            item.addView(Ui.label(this, if (addTile) "+" else "▦", 30f, ut.accent, true).apply { gravity = Gravity.CENTER }, Ui.lp(iconSize, iconSize))
+            item.addView(Ui.label(this, if (addTile) "+" else "▦", asp(30f), ut.accent, true).apply { gravity = Gravity.CENTER }, Ui.lp(iconSize, iconSize))
         }
-        item.addView(Ui.label(this, label, 18f, ut.text, true).apply {
+        item.addView(Ui.label(this, label, asp(18f), ut.text, true).apply {
             maxLines = 1
-            maxWidth = px(200f)
+            maxWidth = apx(200f)
             ellipsize = android.text.TextUtils.TruncateAt.END
             includeFontPadding = false
-        }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, px(12f), 0, 0, 0))
+        }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, apx(12f), 0, 0, 0))
         return item
     }
 
@@ -3550,25 +3550,35 @@ class MainLauncherActivity : BaseActivity() {
      * تحية واسم المدينة والتاريخ الميلادي/الهجري، شريط طقس/صلاة موحد يحدّثه المؤقّت، ثلاث بطاقات زجاجية
      * (الصلاة القادمة، أقرب مباراة بشعارات حقيقية، البث المباشر)، ودوك سفلي بأيقونات التطبيقات الحقيقية.
      */
+    // مقياس تخطيط أورورا: سقف للكثافة الفعلية حتى لا يدفع تلفاز/جهاز يبلّغ كثافة عالية
+    // (مثل xhdpi على لوحة 1080p) الأقسام الثابتة خارج الشاشة. خارج واجهة أورورا يُستخدم مقياس الشاشة كما هو.
+    private var auroraLayoutScale = -1f
+    private fun alScale(): Float = if (auroraLayoutScale > 0f) auroraLayoutScale else resources.displayMetrics.density
+    private fun apx(v: Float): Int = (v * alScale() + 0.5f).toInt()
+    private fun asp(v: Float): Float = v * alScale() / resources.displayMetrics.scaledDensity
+
     private fun buildAuroraHome(): View {
+        val dmA = resources.displayMetrics
+        // 650dp هو مجموع الارتفاعات الثابتة عند المقياس 1 (قسم علوي 200 + بطاقات 236 + دوك وهوامش)
+        auroraLayoutScale = minOf(dmA.density, dmA.heightPixels / 650f).coerceIn(0.8f, 4f)
         // الحقول التي يحدّثها المؤقّت (tick) تُنشأ قبل البطاقات حتى لا يكتب في حقول غير مهيأة
-        tvTime = Ui.label(this, "--:--", 30f, ut.text, true).apply { maxLines = 1; includeFontPadding = false }
-        tvAmPm = Ui.label(this, "", 15f, ut.accent, true).apply { maxLines = 1; includeFontPadding = false }
-        tvDate = Ui.label(this, "", 19f, ut.text).apply { maxLines = 1 }
-        tvHijri = Ui.label(this, "", 19f, ut.accent).apply { maxLines = 1 }
-        tvCity = Ui.label(this, "📍 " + prefs.cityName, 17f, ut.dim).apply { maxLines = 1 }
-        tvTemp = Ui.label(this, "--°", 20f, ut.text, true)
-        tvWDesc = Ui.label(this, "", 20f, ut.text)
-        tvWDetail = Ui.label(this, "", 15f, ut.dim)
-        tvPNext = Ui.label(this, "الصلاة القادمة", 23f, Color.parseColor("#E8C98A"), true)
-        tvPCount = Ui.label(this, "--:--:--", 34f, ut.text, true)
+        tvTime = Ui.label(this, "--:--", asp(30f), ut.text, true).apply { maxLines = 1; includeFontPadding = false }
+        tvAmPm = Ui.label(this, "", asp(15f), ut.accent, true).apply { maxLines = 1; includeFontPadding = false }
+        tvDate = Ui.label(this, "", asp(19f), ut.text).apply { maxLines = 1 }
+        tvHijri = Ui.label(this, "", asp(19f), ut.accent).apply { maxLines = 1 }
+        tvCity = Ui.label(this, "📍 " + prefs.cityName, asp(17f), ut.dim).apply { maxLines = 1 }
+        tvTemp = Ui.label(this, "--°", asp(20f), ut.text, true)
+        tvWDesc = Ui.label(this, "", asp(20f), ut.text)
+        tvWDetail = Ui.label(this, "", asp(15f), ut.dim)
+        tvPNext = Ui.label(this, "الصلاة القادمة", asp(23f), Color.parseColor("#E8C98A"), true)
+        tvPCount = Ui.label(this, "--:--:--", asp(34f), ut.text, true)
 
         val col = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutDirection = View.LAYOUT_DIRECTION_LTR
             clipChildren = false
             clipToPadding = false
-            setPadding(px(40f), px(22f), px(40f), px(18f))
+            setPadding(apx(40f), apx(22f), apx(40f), apx(18f))
             tag = "aurora-home"
         }
 
@@ -3579,7 +3589,7 @@ class MainLauncherActivity : BaseActivity() {
             orientation = LinearLayout.HORIZONTAL
             layoutDirection = View.LAYOUT_DIRECTION_LTR
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(px(18f), px(8f), px(18f), px(8f))
+            setPadding(apx(18f), apx(8f), apx(18f), apx(8f))
             tag = "aurora-status-pill"
         }
         auroraSurface(pill, 30f, false)
@@ -3589,17 +3599,17 @@ class MainLauncherActivity : BaseActivity() {
             layoutDirection = View.LAYOUT_DIRECTION_LTR
         }
         clockBox.addView(tvTime)
-        clockBox.addView(tvAmPm, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, px(5f), 0, 0, 0))
-        pill.addView(clockBox, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, px(4f), 0))
+        clockBox.addView(tvAmPm, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, apx(5f), 0, 0, 0))
+        pill.addView(clockBox, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, apx(4f), 0))
         pill.addView(auroraPillDivider())
         tvWifi = auroraPillButton("📶", "الشبكة") { openWifi() }
-        pill.addView(tvWifi, Ui.lpm(Ui.WRAP, px(48f), 0f, px(2f), 0, px(2f), 0))
+        pill.addView(tvWifi, Ui.lpm(Ui.WRAP, apx(48f), 0f, apx(2f), 0, apx(2f), 0))
         pill.addView(auroraPillDivider())
-        pill.addView(auroraPillButton("▣", "مدخل التلفزيون") { openHdmi() }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
-        pill.addView(auroraPillButton("⌕", "بحث في التطبيقات") { openAppSearch() }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
-        pill.addView(auroraPillButton("♧", "مركز التنبيهات") { startActivity(Intent(this, NotificationCenterActivity::class.java)) }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
-        pill.addView(auroraPillButton("🖼", "الخلفيات") { startActivity(Intent(this, WallpaperActivity::class.java)) }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
-        pill.addView(auroraPillButton("⚙", "الإعدادات") { startActivity(Intent(this, SettingsActivity::class.java)) }, Ui.lpm(px(48f), px(48f), 0f, px(2f), 0, px(2f), 0))
+        pill.addView(auroraPillButton("▣", "مدخل التلفزيون") { openHdmi() }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("⌕", "بحث في التطبيقات") { openAppSearch() }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("♧", "مركز التنبيهات") { startActivity(Intent(this, NotificationCenterActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("🖼", "الخلفيات") { startActivity(Intent(this, WallpaperActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
+        pill.addView(auroraPillButton("⚙", "الإعدادات") { startActivity(Intent(this, SettingsActivity::class.java)) }, Ui.lpm(apx(48f), apx(48f), 0f, apx(2f), 0, apx(2f), 0))
         top.addView(pill, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.CENTER_HORIZONTAL or Gravity.TOP))
 
         // كتلة المدينة والتاريخ (الجهة اليمنى)
@@ -3610,43 +3620,43 @@ class MainLauncherActivity : BaseActivity() {
             clipChildren = false
             tag = "aurora-city-block"
         }
-        info.addView(Ui.label(this, auroraGreeting(), 21f, ut.text, true).apply { tag = "aurora-greeting"; maxLines = 1 })
-        val big = Ui.label(this, prefs.cityName, 60f, ut.text, true).apply { tag = "aurora-city"; maxLines = 1 }
+        info.addView(Ui.label(this, auroraGreeting(), asp(21f), ut.text, true).apply { tag = "aurora-greeting"; maxLines = 1 })
+        val big = Ui.label(this, prefs.cityName, asp(60f), ut.text, true).apply { tag = "aurora-city"; maxLines = 1 }
         tvBigCity = big
-        info.addView(big, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(2f), 0, 0))
+        info.addView(big, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, apx(2f), 0, 0))
         val dateRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutDirection = View.LAYOUT_DIRECTION_RTL
             gravity = Gravity.CENTER_VERTICAL
         }
         dateRow.addView(tvDate)
-        dateRow.addView(Ui.label(this, "  ·  ", 19f, ut.dim))
+        dateRow.addView(Ui.label(this, "  ·  ", asp(19f), ut.dim))
         dateRow.addView(tvHijri)
-        info.addView(dateRow, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(4f), 0, 0))
-        val chip = Ui.label(this, "", 19f, ut.text, true).apply {
+        info.addView(dateRow, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, apx(4f), 0, 0))
+        val chip = Ui.label(this, "", asp(19f), ut.text, true).apply {
             tag = "aurora-header-info"
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
-            setPadding(px(18f), px(9f), px(18f), px(9f))
+            setPadding(apx(18f), apx(9f), apx(18f), apx(9f))
         }
         auroraSurface(chip, 24f, true)
         tvHeaderInfo = chip
-        val chipLp = Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, px(10f), 0, 0)
+        val chipLp = Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, apx(10f), 0, 0)
         chipLp.gravity = Gravity.END
         info.addView(chip, chipLp)
         weatherCard = chip
         top.addView(info, FrameLayout.LayoutParams(Ui.WRAP, Ui.MATCH, Gravity.END or Gravity.TOP))
 
         // مؤشر سرعة الشبكة (الجهة اليسرى)
-        val netChip = Ui.label(this, "", 16f, ut.dim, true).apply {
+        val netChip = Ui.label(this, "", asp(16f), ut.dim, true).apply {
             tag = "aurora-net-speed"
-            setPadding(px(14f), px(8f), px(14f), px(8f))
+            setPadding(apx(14f), apx(8f), apx(14f), apx(8f))
         }
         auroraSurface(netChip, 20f, false)
         tvNetSpeed = netChip
         top.addView(netChip, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.START or Gravity.TOP))
 
-        col.addView(top, Ui.lp(Ui.MATCH, px(200f)))
+        col.addView(top, Ui.lp(Ui.MATCH, apx(200f)))
         col.addView(View(this), Ui.lp(1, 0, 1f))
 
         // صف البطاقات الزجاجية: الصلاة، المباراة (أوسع)، البث المباشر
@@ -3659,16 +3669,16 @@ class MainLauncherActivity : BaseActivity() {
         }
         val prayerSpot = buildUpcomingPrayerSpotlight()
         prayerCard = prayerSpot as LinearLayout
-        val matchSpot = buildSingleMatchSpotlightCard()
+        val matchSpot = buildSingleMatchSpotlightCard(slim = true)
         val liveCard = buildLiveTvCard()
         auroraSurface(prayerSpot)
         auroraSurface(matchSpot)
         auroraSurface(liveCard)
-        val cardH = px(236f)
-        cards.addView(prayerSpot, Ui.lpm(0, cardH, 1f, 0, 0, px(9f), 0))
-        cards.addView(matchSpot, Ui.lpm(0, cardH, 1.25f, 0, 0, px(9f), 0))
+        val cardH = apx(272f)
+        cards.addView(prayerSpot, Ui.lpm(0, cardH, 1f, 0, 0, apx(9f), 0))
+        cards.addView(matchSpot, Ui.lpm(0, cardH, 1.25f, 0, 0, apx(9f), 0))
         cards.addView(liveCard, Ui.lpm(0, cardH, 1f, 0, 0, 0, 0))
-        col.addView(cards, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, px(12f), 0, px(14f)))
+        col.addView(cards, Ui.lpm(Ui.MATCH, Ui.WRAP, 0f, 0, apx(12f), 0, apx(14f)))
 
         // الدوك السفلي: تطبيقات مفضلة بأيقوناتها الحقيقية + بلاطة إضافة
         val dockFrame = FrameLayout(this).apply { clipChildren = false; tag = "aurora-dock-frame" }
@@ -3696,7 +3706,7 @@ class MainLauncherActivity : BaseActivity() {
                 val launch = AppUtil.launchIntent(pm, pkg)
                 if (launch == null) toast("لا توجد واجهة تشغيل لهذا التطبيق")
                 else try { startActivity(launch) } catch (_: Exception) { toast("تعذر فتح التطبيق") }
-            }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, px(8f), 0))
+            }, Ui.lpm(Ui.WRAP, Ui.WRAP, 0f, 0, 0, apx(8f), 0))
         }
         row.addView(auroraDockTile(null, "إضافة", true) {
             startActivity(Intent(this, AppsActivity::class.java).putExtra("mode", "pin"))
@@ -3704,6 +3714,7 @@ class MainLauncherActivity : BaseActivity() {
         scroll.addView(row, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP))
         dockFrame.addView(scroll, FrameLayout.LayoutParams(Ui.WRAP, Ui.WRAP, Gravity.CENTER))
         col.addView(dockFrame, Ui.lp(Ui.MATCH, Ui.WRAP))
+        auroraLayoutScale = -1f
         return col
     }
 

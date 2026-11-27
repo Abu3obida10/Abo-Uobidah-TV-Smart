@@ -91,7 +91,8 @@ class ReferenceLayoutStructureTest {
 
     private fun prayerArabicLabelForTest(key: String): String = when (key) {
         "Fajr" -> "الفجر"
-        "Dhuhr" -> "الظهر"
+        // يوم الجمعة تعرض الشاشة «الجمعة» بدل «الظهر» عمدًا؛ التوقع يتبع نفس القاعدة وإلا فشل الاختبار أيام الجمعة.
+        "Dhuhr" -> if (PrayerRepo.localNow(Prefs(org.robolectric.RuntimeEnvironment.getApplication())).dayOfWeek == java.time.DayOfWeek.FRIDAY) "الجمعة" else "الظهر"
         "Asr" -> "العصر"
         "Maghrib" -> "المغرب"
         "Isha" -> "العشاء"

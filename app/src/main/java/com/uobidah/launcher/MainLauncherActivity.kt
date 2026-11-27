@@ -139,6 +139,7 @@ class MainLauncherActivity : BaseActivity() {
         migrateProHome()
         sig = currentSig()
         cityKey = currentCityKey()
+        HomeWatchdogWorker.schedule(this)
         buildUi()
         renderWeatherCache()
         firstRunSetup()

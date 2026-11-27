@@ -341,8 +341,8 @@ object IconData {
         "🎮" to "gamepad",
         "🧩" to "apps",
         "▦" to "apps",
-        "▣" to "tv"
-        "⌕" to "search"
+        "▣" to "tv",
+        "⌕" to "search",
         "♧" to "bell",
         "▧" to "apps",
         "🔲" to "apps",

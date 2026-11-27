@@ -13,9 +13,11 @@ checks = {
     "typed prayer time reads TextView.text only after null check": "time != null && time.visibility == View.VISIBLE && time.text.isNotBlank()" in render_test,
     "HDMI activity uses the standalone routing policy": "TvInputRoutingPolicy.selectDirectRoute(" in main,
     "saved TV app route handled before HDMI fallback": "TvInputRoutingPolicy.DirectRoute.SAVED_TV_APP" in main,
-    "disconnected HDMI never enters direct fallback": "TvInputRoutingPolicy.isDirectlyAvailableInputState(" in main,
+    # الحارس يعيش داخل السياسة نفسها منذ توحيد المسار في selectDirectRoute.
+    "disconnected HDMI never enters direct fallback": "TvInputRoutingPolicy.isDirectlyAvailableInputState(" in main or "isDirectlyAvailableInputState(state" in policy,
     "route tests cover disconnected HDMI": "directRouteNeverAutoSelectsDisconnectedHdmi" in intent_test,
-    "route tests cover saved TV app priority": "directRoutePrefersSavedTvApplicationBeforeConnectedHdmi" in intent_test,
+    # قرار المستخدم (27 نوفمبر): المدخل المتصل أولًا، ويُفضَّل HDMI 1 بين المتصلة؛ الاختبار بهذا الاسم.
+    "route tests cover connected HDMI priority": "directRoutePrefersConnectedHdmiOverResolvableSavedTvApplication" in intent_test,
 }
 failed = [name for name, ok in checks.items() if not ok]
 for name, ok in checks.items():

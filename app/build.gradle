@@ -126,10 +126,23 @@ dependencies {
     robolectricAndroidAll 'org.robolectric:android-all-instrumented:13-robolectric-9030017-i7'
 }
 
-def copyRobolectricAndroidAll = tasks.register('copyRobolectricAndroidAll', Copy) {
-    from(configurations.robolectricAndroidAll)
-    into(layout.buildDirectory.dir('robolectric-deps'))
-    include('android-all-instrumented-*.jar')
+def copyRobolectricAndroidAll = tasks.register('copyRobolectricAndroidAll') {
+    outputs.dir(layout.buildDirectory.dir('robolectric-deps'))
+    doLast {
+        def dir = layout.buildDirectory.dir('robolectric-deps').get().asFile
+        dir.mkdirs()
+        def jars = configurations.robolectricAndroidAll.resolve().findAll { it.name.endsWith('.jar') }
+        if (jars.isEmpty()) {
+            throw new GradleException('robolectricAndroidAll resolved to no jars: ' +
+                    configurations.robolectricAndroidAll.resolve()*.name)
+        }
+        jars.each { f ->
+            java.nio.file.Files.copy(f.toPath(), new File(dir, f.name).toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            println "robolectric-deps: copied ${f.name} (${f.length()} bytes)"
+        }
+        println 'robolectric-deps dir now: ' + (dir.list() as List)
+    }
 }
 
 tasks.withType(Test).configureEach {

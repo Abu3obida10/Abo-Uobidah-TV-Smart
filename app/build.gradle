@@ -102,7 +102,12 @@ tasks.withType(org.gradle.api.tasks.testing.Test).configureEach {
     }
 }
 
-configurations { robolectricAndroidAll }
+configurations {
+    // Separate configurations: one configuration would evict the older jars by version conflict.
+    robolectricSdk13
+    robolectricSdk14
+    robolectricSdk15
+}
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.13.1'
@@ -121,9 +126,9 @@ dependencies {
 
     // android-all jars resolved through Gradle's downloader (retries/backoff) instead of
     // Robolectric's plain-URL fetcher, which Maven Central throttled with HTTP 429 repeatedly.
-    robolectricAndroidAll 'org.robolectric:android-all-instrumented:15-robolectric-12650502-i7'
-    robolectricAndroidAll 'org.robolectric:android-all-instrumented:14-robolectric-10818077-i7'
-    robolectricAndroidAll 'org.robolectric:android-all-instrumented:13-robolectric-9030017-i7'
+    robolectricSdk15 'org.robolectric:android-all-instrumented:15-robolectric-12650502-i7'
+    robolectricSdk14 'org.robolectric:android-all-instrumented:14-robolectric-10818077-i7'
+    robolectricSdk13 'org.robolectric:android-all-instrumented:13-robolectric-9030017-i7'
 }
 
 def copyRobolectricAndroidAll = tasks.register('copyRobolectricAndroidAll') {
@@ -131,10 +136,12 @@ def copyRobolectricAndroidAll = tasks.register('copyRobolectricAndroidAll') {
     doLast {
         def dir = layout.buildDirectory.dir('robolectric-deps').get().asFile
         dir.mkdirs()
-        def jars = configurations.robolectricAndroidAll.resolve().findAll { it.name.endsWith('.jar') }
-        if (jars.isEmpty()) {
-            throw new GradleException('robolectricAndroidAll resolved to no jars: ' +
-                    configurations.robolectricAndroidAll.resolve()*.name)
+        def jars = [configurations.robolectricSdk13, configurations.robolectricSdk14,
+                    configurations.robolectricSdk15].collectMany { cfg ->
+            cfg.resolve().findAll { it.name.endsWith('.jar') }
+        }
+        if (jars.size() < 3) {
+            throw new GradleException('expected 3 android-all jars, resolved: ' + jars*.name)
         }
         jars.each { f ->
             java.nio.file.Files.copy(f.toPath(), new File(dir, f.name).toPath(),

@@ -121,6 +121,7 @@ dependencies {
 
     // android-all jars resolved through Gradle's downloader (retries/backoff) instead of
     // Robolectric's plain-URL fetcher, which Maven Central throttled with HTTP 429 repeatedly.
+    robolectricAndroidAll 'org.robolectric:android-all-instrumented:15-robolectric-12650502-i7'
     robolectricAndroidAll 'org.robolectric:android-all-instrumented:14-robolectric-10818077-i7'
     robolectricAndroidAll 'org.robolectric:android-all-instrumented:13-robolectric-9030017-i7'
 }

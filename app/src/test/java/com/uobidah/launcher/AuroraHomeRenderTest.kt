@@ -20,10 +20,7 @@ import org.robolectric.annotation.GraphicsMode
  * واجهة أورورا: تصيير حقيقي بالمقاسات الفعلية (منها مقاس جهاز المستخدم 2560x1183)
  * مع تأكيدات هندسية: لا قصّ، لا تداخل بين البطاقات أو بلاطات الدوك، ولا نص مقصوص رأسيًا.
  */
-@RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [34])
-class AuroraHomeRenderTest {
+abstract class AuroraHomeRenderTestBase {
 
     @Before fun initWorkManager() {
         // HomeWatchdogWorker.schedule يعمل في onCreate؛ WorkManager غير مهيأ افتراضيًا في بيئة Robolectric
@@ -83,13 +80,7 @@ class AuroraHomeRenderTest {
         }
     }
 
-    private fun renderAndCheck(w: Int, h: Int, density: Float = 1f) {
-        val dm = org.robolectric.RuntimeEnvironment.getApplication().resources.displayMetrics
-        val oldD = dm.density; val oldSd = dm.scaledDensity; val oldDpi = dm.densityDpi
-        val oldW = dm.widthPixels; val oldH = dm.heightPixels
-        dm.density = density; dm.scaledDensity = density; dm.densityDpi = (160 * density).toInt()
-        dm.widthPixels = w; dm.heightPixels = h
-        try {
+    private fun renderAndCheck() {
         val controller = Robolectric.buildActivity(MainLauncherActivity::class.java).create().start().resume().visible()
         org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
         // بطاقة المباراة تُملأ على خيط خلفي (Net.bg): انتظر البطاقة أو حالة الفراغ حتى تكون الهندسة حتمية
@@ -100,6 +91,8 @@ class AuroraHomeRenderTest {
         }
         val a = controller.get()
         val v = a.window.decorView
+        val w = v.resources.displayMetrics.widthPixels
+        val h = v.resources.displayMetrics.heightPixels
         v.measure(
             View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY)
@@ -128,22 +121,38 @@ class AuroraHomeRenderTest {
         assertTrue("overflow:\n" + overflowViolations.joinToString("\n"), overflowViolations.isEmpty())
         assertTextFits(v)
         controller.pause().stop().destroy()
-        } finally {
-            dm.density = oldD; dm.scaledDensity = oldSd; dm.densityDpi = oldDpi
-            dm.widthPixels = oldW; dm.heightPixels = oldH
-        }
     }
 
-    /** مقاس جهاز المستخدم الفعلي من لقطات الشاشة المرسلة. */
-    @Test fun auroraAtUserDeviceResolution() = renderAndCheck(2560, 1183)
-
-    @Test fun auroraAt1080p() = renderAndCheck(1920, 1080)
-
-    @Test fun auroraAt800p() = renderAndCheck(1280, 800)
-
-    /** تلفاز المستخدم JVC: ‏1920x1080 بكثافة tvdpi ‏(213dpi) — هدف الأداء الأساسي لكل إصدار. */
-    @Test fun auroraAtHisJvcTv() = renderAndCheck(1920, 1080, 1.33125f)
-
-    /** جهاز يبلّغ كثافة xhdpi على لوحة 1080p: سقف مقياس أورورا يمنع فيض الأقسام خارج الشاشة. */
-    @Test fun auroraAtMisreportedXhdpiTv() = renderAndCheck(1920, 1080, 2f)
+    @Test fun auroraRendersClean() = renderAndCheck()
 }
+
+// كل حالة في فئة مستقلة بـ qualifiers خاصة بها — الطريقة المدعومة في Robolectric لضبط
+// مقاس/كثافة النشاط؛ تعديل displayMetrics يدويًا كان يقرأ قيمًا قديمة عبر النشاط.
+
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34], qualifiers = "w1920dp-h1080dp-mdpi-land")
+class AuroraHomeRender1080pTest : AuroraHomeRenderTestBase()
+
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34], qualifiers = "w1280dp-h800dp-mdpi-land")
+class AuroraHomeRender800pTest : AuroraHomeRenderTestBase()
+
+/** تلفاز المستخدم JVC: ‏1920x1080 بكثافة tvdpi ‏(213dpi) — هدف الأداء الأساسي لكل إصدار. */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34], qualifiers = "w1442dp-h811dp-tvdpi-land")
+class AuroraHomeRenderHisJvcTvTest : AuroraHomeRenderTestBase()
+
+/** جهاز يبلّغ كثافة xhdpi على لوحة 1080p: سقف مقياس أورورا يمنع فيض الأقسام خارج الشاشة. */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34], qualifiers = "w960dp-h540dp-xhdpi-land")
+class AuroraHomeRenderXhdpiBoxTest : AuroraHomeRenderTestBase()
+
+/** مقاس جهاز المستخدم الثاني من لقطات الشاشة المرسلة (2560x1183). */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34], qualifiers = "w1280dp-h591dp-xhdpi-land")
+class AuroraHomeRenderUserDeviceTest : AuroraHomeRenderTestBase()
